@@ -1,0 +1,187 @@
+record(bo, "$(P)SIM") {
+    field(SCAN, "Passive")
+    field(DTYP, "Soft Channel")
+    field(ZNAM, "NO")
+    field(ONAM, "YES")
+    field(VAL, "$(RECSIM=0)")
+}
+
+record(bo, "$(P)STOP:SP") {
+	field(DESC, "Stops the ramp")
+	field(DTYP, "stream")
+	
+	field(OUT,  "@knr1050.proto stop $(PORT)")
+	
+    field(ZNAM, "")
+    field(ONAM, "STOP")
+	
+	info(INTEREST, "HIGH")
+}
+
+record(bo, "$(P)_STOP:KLV:SP") {
+	field(DESC, "Stop mode: keep last values")
+	field(DTYP, "stream")
+
+	field(OUT,  "@knr1050.proto stop_klv $(PORT)")
+	
+    field(ZNAM, "")
+    field(ONAM, "STOP")
+	
+	info(INTEREST, "HIGH")
+}
+
+record(ai, "$(P)GET_PRESS:LIM") {
+	field(DESC, "Gets pressure low/high limits")
+	field(DTYP, "stream")
+	field(SCAN, "1 second")
+	
+	field(INP, "@knr1050.proto get_plim($(P)PRESS:LOW,$(P)PRESS:HIGH) $(PORT)")
+	field(EGU, "KPa")
+}
+
+record(ai, "$(P)PRESS:LOW") {
+	field(DESC, "Low pressure limit")
+	
+	field(EGU, "KPa")
+
+	field(SIML, "$(P)SIM")
+    field(SIOL, "$(P)SIM:PRESS:LOW")
+}
+
+record(ao, "$(P)PRESS:LOW:SP") {
+	field(DESC, "Sets the low pressure limit")
+	field(DTYP, "stream")
+	
+	field(OUT,  "@knr1050.proto set_plim_low($(P)PRESS:HIGH) $(PORT)")
+	field(FLNK, "$(P)GET_PRESS:LIM")
+	field(EGU, "KPa")
+
+	info(INTEREST, "HIGH")
+	field(SIML, "$(P)SIM")
+    field(SIOL, "$(P)SIM:PRESS:LOW:SP PP")
+}
+
+alias("$(P)PRESS:LOW", "$(P)PRESS:LOW:SP:RBV")
+
+
+record(ai, "$(P)PRESS:HIGH") {
+	field(DESC, "High pressure limit")
+	
+	field(EGU, "KPa")
+	
+	field(SIML, "$(P)SIM")
+    field(SIOL, "$(P)SIM:PRESS:HIGH")
+}
+
+record(ao, "$(P)PRESS:HIGH:SP") {
+	field(DESC, "Sets the high pressure limit")
+	field(DTYP, "stream")
+	
+	field(OUT,  "@knr1050.proto set_plim_high($(P)PRESS:LOW) $(PORT)")
+	field(FLNK, "$(P)GET_PRESS:LIM")
+	field(EGU, "KPa")
+	
+	info(INTEREST, "HIGH")
+	field(SIML, "$(P)SIM")
+    field(SIOL, "$(P)SIM:PRESS:HIGH:SP PP")
+}
+
+alias("$(P)PRESS:HIGH", "$(P)PRESS:HIGH:SP:RBV")
+
+record(bo, "$(P)RAMP:SP") {
+	field(DESC, "Starts the ramp")
+	field(DTYP, "stream")
+	
+	field(OUT, "@knr1050.proto ramp($(P),FLOWRATE:SP,CON:A:SP,CON:B:SP,CON:C:SP,CON:D:SP) $(PORT)")
+	
+	field(ZNAM, "")
+	field(ONAM, "RAMP")
+
+	info(INTEREST, "HIGH")
+	field(SIML, "$(P)SIM")
+}
+
+alias("$(P)RAMP:SP", "$(P)RAMP")
+
+record(ai, "$(P)FLOWRATE") {
+	field(DESC, "Low flow rate")
+	field(EGU, "ul/min")
+}
+
+record(ao, "$(P)FLOWRATE:SP") {
+	field(DESC, "Low flow rate")
+	field(EGU, "ul/min")
+}
+
+alias("$(P)FLOWRATE", "$(P)FLOWRATE:SP:RBV")
+
+record(ai, "$(P)CON:A:SP") {
+	field(DESC, "(Gradients) Concentration A")
+}
+
+record(ai, "$(P)CON:B:SP") {
+	field(DESC, "(Gradients) Concentration B")
+}
+
+record(ai, "$(P)CON:C:SP") {
+	field(DESC, "(Gradients) Concentration C")
+}
+
+record(ai, "$(P)CON:D:SP") {
+	field(DESC, "(Gradients) Concentration D")
+}
+
+record(ai, "$(P)GET_STATUS") {
+	field(DESC, "Get the current device status")
+	field(DTYP, "stream")
+	field(SCAN, "1 second")
+	
+	field(INP, "@knr1050.proto get_status($(P)INST_STATE) $(PORT)")
+}
+
+record(mbbi, "$(P)INST_STATE"){
+    field(DESC, "The current instrument state.")
+    field(DTYP, "stream")
+    
+    field(ZRVL, "0")
+    field(ONVL, "1")
+    field(TWVL, "2")
+    field(THVL, "3")
+    field(FRVL, "4")
+	field(FRVL, "5")
+    field(FRVL, "6")   
+	
+    field(ZRST, "SYS_ST_INITIALIZING")
+    field(ONST, "SYS_ST_OFF")
+    field(TWST, "SYS_ST_IDLE")
+    field(THST, "SYS_ST_RUN")
+    field(FRST, "SYS_ST_HOLD")
+    field(THST, "SYS_ST_PURGE")
+    field(FRST, "SYS_ST_STANDBY")
+    
+    info(INTEREST, "HIGH")
+}
+
+#### SIMULATION
+
+record(ao, "$(P)SIM:PRESS:LOW") {
+    field(FLNK, "$(P)PRESS:LOW")
+}
+
+alias("$(P)SIM:PRESS:LOW", "$(P)SIM:PRESS:LOW:SP")
+alias("$(P)SIM:PRESS:LOW", "$(P)SIM:PRESS:LOW:SP:RBV")
+
+
+record(ao, "$(P)SIM:PRESS:HIGH") {
+    field(FLNK, "$(P)PRESS:HIGH")
+}
+
+alias("$(P)SIM:PRESS:HIGH", "$(P)SIM:PRESS:HIGH:SP")
+alias("$(P)SIM:PRESS:HIGH", "$(P)SIM:PRESS:HIGH:SP:RBV")
+
+record(ao, "$(P)SIM:FLOW:LOW") {
+	field(FLNK, "$(P)FLOW:LOW")
+}
+
+alias("$(P)SIM:FLOW:LOW", "$(P)SIM:FLOW:LOW:SP")
+alias("$(P)SIM:FLOW:LOW", "$(P)SIM:FLOW:LOW:SP:RBV")

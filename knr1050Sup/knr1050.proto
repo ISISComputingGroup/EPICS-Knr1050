@@ -1,0 +1,36 @@
+Terminator = CR;
+
+stop {
+    out "STOP:1,0";
+	in "OK";
+}
+
+stop_klv {
+    out "STOP:2";
+	in "OK";
+}
+
+get_plim {
+	out "PLIM?";
+	in "PLIM:%(\$1)f,%(\$2)f";
+}
+
+set_plim_low {
+	out "PLIM:%f,%(\$1)f";
+	in "OK";
+}
+
+set_plim_high {
+	out "PLIM:%(\$1)f,%f";
+	in "OK";
+}
+
+ramp {
+	out "RAMP:0,%(\$1\$2)f,%(\$1\$3)f,%(\$1\$4)f,%(\$1\$5)f,%(\$1\$6)f";
+	in "OK"
+}
+
+get_status {
+	out "STATUS?";
+	in $return "STATUS:%(\$1)i";
+}
