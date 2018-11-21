@@ -21,12 +21,12 @@ record(mbbo, "$(P)TOGGLE_PUMP:SP") {
 	field(ONST, "Start pump")
 }
 
-record(dfanout, "$(P)_TOGGLE:SELECT") {
+record(fanout, "$(P)_TOGGLE:SELECT") {
 	field(SELM, "Specified")
-	field(OUTA, "$(P)STOP_PUMP:SP PP")
-	field(OUTB, "$(P)RAMP:SP PP")
-	
-	field(VAL, "1")
+	field(LNK1, "$(P)STOP_PUMP:SP PP")
+	field(LNK2, "$(P)RAMP:SP PP")
+
+	#field(VAL, "1")
 	
 	#field(SELL, "$(P)TOGGLE_PUMP:SP")
 }
@@ -35,6 +35,7 @@ record(bo, "$(P)STOP_PUMP:SP") {
 	field(DESC, "Stops the ramp")
 	field(DTYP, "stream")
 	field(SCAN, "Passive")
+	field(MDEL, "-1")
 	
 	field(OUT,  "@knr1050.proto stop_pump $(PORT)")
 	
@@ -115,6 +116,7 @@ record(bo, "$(P)RAMP:SP") {
 	field(DESC, "Starts the ramp")
 	field(DTYP, "stream")
     field(SCAN, "Passive")
+	field(MDEL, "-1")
 	
 	field(OUT, "@knr1050.proto ramp($(P),FLOWRATE:SP,CON:A:SP,CON:B:SP,CON:C:SP,CON:D:SP) $(PORT)")
 

@@ -9,26 +9,20 @@ record(bo, "$(P)SIM") {
 record(mbbo, "$(P)TOGGLE_PUMP:SP") {
 	field(DESC, "Start or stop the pump")
     field(DTYP, "Raw Soft Channel")
-	
-	#field(OUT, "$(P)_TOGGLE:SELECT PP")
+
 	field(OUT, "$(P)_TOGGLE:SELECT.SELN PP")
 	
 	field(ZRVL, "1")
 	field(ONVL, "2")
-	#field(TWVL, "2")
 	
 	field(ZRST, "Stop pump")
 	field(ONST, "Start pump")
 }
 
-record(dfanout, "$(P)_TOGGLE:SELECT") {
+record(fanout, "$(P)_TOGGLE:SELECT") {
 	field(SELM, "Specified")
-	field(OUTA, "$(P)STOP_PUMP:SP PP")
-	field(OUTB, "$(P)RAMP:SP PP")
-	
-	field(VAL, "1")
-	
-	#field(SELL, "$(P)TOGGLE_PUMP:SP")
+	field(LNK1, "$(P)STOP_PUMP:SP PP")
+	field(LNK2, "$(P)RAMP:SP PP")
 }
 
 record(bo, "$(P)STOP_PUMP:SP") {
