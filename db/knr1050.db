@@ -6,14 +6,37 @@ record(bo, "$(P)SIM") {
     field(VAL, "$(RECSIM=0)")
 }
 
-record(bo, "$(P)STOP:SP") {
+record(mbbo, "$(P)TOGGLE_PUMP:SP") {
+	field(DESC, "Start or stop the pump")
+    field(DTYP, "Raw Soft Channel")
+	
+	#field(OUT, "$(P)_TOGGLE:SELECT PP")
+	field(OUT, "$(P)_TOGGLE:SELECT.SELN PP")
+	
+	field(ZRVL, "1")
+	field(ONVL, "2")
+	#field(TWVL, "2")
+	
+	field(ZRST, "Stop pump")
+	field(ONST, "Start pump")
+}
+
+record(dfanout, "$(P)_TOGGLE:SELECT") {
+	field(SELM, "Specified")
+	field(OUTA, "$(P)STOP_PUMP:SP PP")
+	field(OUTB, "$(P)RAMP:SP PP")
+	
+	field(VAL, "1")
+	
+	#field(SELL, "$(P)TOGGLE_PUMP:SP")
+}
+
+record(bo, "$(P)STOP_PUMP:SP") {
 	field(DESC, "Stops the ramp")
 	field(DTYP, "stream")
+	field(SCAN, "Passive")
 	
-	field(OUT,  "@knr1050.proto stop $(PORT)")
-	
-    field(ZNAM, "")
-    field(ONAM, "STOP")
+	field(OUT,  "@knr1050.proto stop_pump $(PORT)")
 	
 	info(INTEREST, "HIGH")
 }
@@ -91,11 +114,9 @@ alias("$(P)PRESS:HIGH", "$(P)PRESS:HIGH:SP:RBV")
 record(bo, "$(P)RAMP:SP") {
 	field(DESC, "Starts the ramp")
 	field(DTYP, "stream")
+    field(SCAN, "Passive")
 	
 	field(OUT, "@knr1050.proto ramp($(P),FLOWRATE:SP,CON:A:SP,CON:B:SP,CON:C:SP,CON:D:SP) $(PORT)")
-	
-	field(ZNAM, "")
-	field(ONAM, "RAMP")
 
 	info(INTEREST, "HIGH")
 	field(SIML, "$(P)SIM")
@@ -134,14 +155,12 @@ record(ai, "$(P)CON:D:SP") {
 record(ai, "$(P)GET_STATUS") {
 	field(DESC, "Get the current device status")
 	field(DTYP, "stream")
-	field(SCAN, "1 second")
 	
 	field(INP, "@knr1050.proto get_status($(P)INST_STATE) $(PORT)")
 }
 
 record(mbbi, "$(P)INST_STATE"){
     field(DESC, "The current instrument state.")
-    field(DTYP, "stream")
     
     field(ZRVL, "0")
     field(ONVL, "1")
@@ -179,9 +198,9 @@ record(ao, "$(P)SIM:PRESS:HIGH") {
 alias("$(P)SIM:PRESS:HIGH", "$(P)SIM:PRESS:HIGH:SP")
 alias("$(P)SIM:PRESS:HIGH", "$(P)SIM:PRESS:HIGH:SP:RBV")
 
-record(ao, "$(P)SIM:FLOW:LOW") {
+record(ao, "$(P)SIM:FLOWRATE") {
 	field(FLNK, "$(P)FLOW:LOW")
 }
 
-alias("$(P)SIM:FLOW:LOW", "$(P)SIM:FLOW:LOW:SP")
-alias("$(P)SIM:FLOW:LOW", "$(P)SIM:FLOW:LOW:SP:RBV")
+alias("$(P)SIM:FLOWRATE", "$(P)SIM:FLOWRATE:SP")
+alias("$(P)SIM:FLOWRATE", "$(P)SIM:FLOWRATE:SP:RBV")
