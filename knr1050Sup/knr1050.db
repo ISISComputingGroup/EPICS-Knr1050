@@ -6,6 +6,18 @@ record(bo, "$(P)SIM") {
     field(VAL, "$(RECSIM=0)")
 }
 
+
+###########################################################
+# Toggle the pump to either begin or stop a run
+###########################################################
+
+# ///
+# /// The toggle pump set point will either begin a run or stop a run.
+# /// This involves either sending an appropriate ramp AND stop command
+# /// to the device to begin, or the appropriate stop command to end.
+# /// As a result this single set point uses a fanout and link to 
+# /// ensure these commands are correctly sent.
+# ///
 record(mbbo, "$(P)TOGGLE_PUMP:SP") {
 	field(DESC, "Start or stop the pump")
     field(DTYP, "Raw Soft Channel")
@@ -19,13 +31,17 @@ record(mbbo, "$(P)TOGGLE_PUMP:SP") {
 	field(ONST, "Start pump")
 }
 
+# ///
+# /// For the given toggle pump set point process the desired record.
+# ///
 record(fanout, "$(P)_TOGGLE:SELECT") {
 	field(SELM, "Specified")
-	field(LNK1, "$(P)STOP_PUMP:SP PP")
-	field(LNK2, "$(P)RAMP:SP PP")
+	
+	field(LNK1, "$(P)_STOP_PUMP:SP PP")
+	field(LNK2, "$(P)_RAMP:SP PP")
 }
 
-record(bo, "$(P)STOP_PUMP:SP") {
+record(bo, "$(P)_STOP_PUMP:SP") {
 	field(DESC, "Stops the ramp")
 	field(DTYP, "stream")
 	field(SCAN, "Passive")
@@ -41,11 +57,25 @@ record(bo, "$(P)_STOP:KLV:SP") {
 
 	field(OUT,  "@knr1050.proto stop_klv $(PORT)")
 	
-    field(ZNAM, "")
-    field(ONAM, "STOP")
-	
 	info(INTEREST, "HIGH")
 }
+
+alias("$(P)_STOP:KLV:SP", "$(P)_STOP:KLV")
+
+record(bo, "$(P)_RAMP:SP") {
+	field(DESC, "Starts the ramp")
+	field(DTYP, "stream")
+    field(SCAN, "Passive")
+	
+	field(OUT, "@knr1050.proto ramp($(P),FLOWRATE:SP,CON:A:SP,CON:B:SP,CON:C:SP,CON:D:SP) $(PORT)")
+
+	field(FLNK, "$(P)_STOP:KLV:SP PP")
+	
+	info(INTEREST, "HIGH")
+	field(SIML, "$(P)SIM")
+}
+
+alias("$(P)_RAMP:SP", "$(P)_RAMP")
 
 record(ai, "$(P)GET_PRESS:LIM") {
 	field(DESC, "Gets pressure low/high limits")
@@ -59,7 +89,7 @@ record(ai, "$(P)GET_PRESS:LIM") {
 record(ai, "$(P)PRESS:LOW") {
 	field(DESC, "Low pressure limit")
 	
-	field(EGU, "KPa")
+	field(EGU, "kPa")
 
 	field(SIML, "$(P)SIM")
     field(SIOL, "$(P)SIM:PRESS:LOW")
@@ -84,7 +114,7 @@ alias("$(P)PRESS:LOW", "$(P)PRESS:LOW:SP:RBV")
 record(ai, "$(P)PRESS:HIGH") {
 	field(DESC, "High pressure limit")
 	
-	field(EGU, "KPa")
+	field(EGU, "kPa")
 	
 	field(SIML, "$(P)SIM")
     field(SIOL, "$(P)SIM:PRESS:HIGH")
@@ -105,56 +135,46 @@ record(ao, "$(P)PRESS:HIGH:SP") {
 
 alias("$(P)PRESS:HIGH", "$(P)PRESS:HIGH:SP:RBV")
 
-record(bo, "$(P)RAMP:SP") {
-	field(DESC, "Starts the ramp")
-	field(DTYP, "stream")
-    field(SCAN, "Passive")
-	
-	field(OUT, "@knr1050.proto ramp($(P),FLOWRATE:SP,CON:A:SP,CON:B:SP,CON:C:SP,CON:D:SP) $(PORT)")
 
-	info(INTEREST, "HIGH")
-	field(SIML, "$(P)SIM")
-}
 
-alias("$(P)RAMP:SP", "$(P)RAMP")
 
-record(ai, "$(P)FLOWRATE") {
-	field(DESC, "Low flow rate")
-	field(EGU, "ul/min")
-}
 
-record(ao, "$(P)FLOWRATE:SP") {
-	field(DESC, "Low flow rate")
-	field(EGU, "ul/min")
-}
+###########################################################
+# Get the device status
+###########################################################
 
-alias("$(P)FLOWRATE", "$(P)FLOWRATE:SP:RBV")
-
-record(ai, "$(P)CON:A:SP") {
-	field(DESC, "(Gradients) Concentration A")
-}
-
-record(ai, "$(P)CON:B:SP") {
-	field(DESC, "(Gradients) Concentration B")
-}
-
-record(ai, "$(P)CON:C:SP") {
-	field(DESC, "(Gradients) Concentration C")
-}
-
-record(ai, "$(P)CON:D:SP") {
-	field(DESC, "(Gradients) Concentration D")
-}
-
+# ///
+# /// The status is sent to a calc record buffer. The records
+# /// that relate to the status returns are then populated
+# /// using the buffer elements. 
+# ///
 record(ai, "$(P)GET_STATUS") {
 	field(DESC, "Get the current device status")
 	field(DTYP, "stream")
+	field(SCAN, "1 second")
 	
-	field(INP, "@knr1050.proto get_status($(P)INST_STATE) $(PORT)")
+	field(INP, "@knr1050.proto get_status($(P)BUFFER) $(PORT)")
+	
+	info(INTEREST, "HIGH")
 }
 
-record(mbbi, "$(P)INST_STATE"){
+# ///
+# /// For storing the parsed values of get_status
+# ///
+record(calc, "$(P)BUFFER") {
+	field(CALC, "0")
+}
+
+record(ai, "$(P)TIMESTAMP") {
+	field(DESC, "Timestamp in ms")
+	
+	field(INP, "$(P)BUFFER.A CP")
+}
+
+record(mbbi, "$(P)INST_STATE") {
     field(DESC, "The current instrument state.")
+
+	field(INP, "$(P)BUFFER.B CP")
     
     field(ZRVL, "0")
     field(ONVL, "1")
@@ -175,7 +195,96 @@ record(mbbi, "$(P)INST_STATE"){
     info(INTEREST, "HIGH")
 }
 
-#### SIMULATION
+record(ai, "$(P)CURR_ERR") {
+	field(DESC, "Current error")
+	
+	field(INP, "$(P)BUFFER.C CP")
+}
+
+record(ai, "$(P)CURR_PG_RT") {
+	field(DESC, "Current program run time")
+	
+	field(INP, "$(P)BUFFER.D CP")
+}
+
+record(ai, "$(P)FLOWRATE") {
+	field(DESC, "Flow rate")
+	field(EGU, "ul/min")
+	
+	field(INP, "$(P)BUFFER.E CP")
+}
+
+record(ao, "$(P)FLOWRATE:SP") {
+	field(DESC, "Low flow rate")
+	field(EGU, "ul/min")
+}
+
+alias("$(P)FLOWRATE", "$(P)FLOWRATE:SP:RBV")
+
+record(ai, "$(P)CON:A") {
+	field(DESC, "(Gradients) Concentration A")
+	
+	field(INP, "$(P)BUFFER.F CP")
+}
+
+record(ao, "$(P)CON:A:SP") {
+	field(DESC, "(Gradients) Concentration A")
+}
+
+alias("$(P)CON:A", "$(P)CON:A:SP:RBV")
+
+record(ai, "$(P)CON:B") {
+	field(DESC, "(Gradients) Concentration B")
+	
+	field(INP, "$(P)BUFFER.G CP")
+}
+
+record(ao, "$(P)CON:B:SP") {
+	field(DESC, "(Gradients) Concentration B")
+
+}
+
+alias("$(P)CON:B", "$(P)CON:B:SP:RBV")
+
+record(ai, "$(P)CON:C") {
+	field(DESC, "(Gradients) Concentration C")
+	
+	field(INP, "$(P)BUFFER.H CP")
+}
+
+record(ao, "$(P)CON:C:SP") {
+	field(DESC, "(Gradients) Concentration C")
+}
+
+alias("$(P)CON:C", "$(P)CON:C:SP:RBV")
+
+record(ai, "$(P)CON:D") {
+	field(DESC, "(Gradients) Concentration D")
+	
+	field(INP, "$(P)BUFFER.I CP")
+}
+
+record(ao, "$(P)CON:D:SP") {
+	field(DESC, "(Gradients) Concentration D")
+}
+
+alias("$(P)CON:D", "$(P)CON:D:SP:RBV")
+
+record(ai, "$(P)PRESSURE") {
+	field(DESC, "Pressure in kPa")
+	
+	field(INP, "$(P)BUFFER.J CP")
+}
+
+record(bi, "$(P)ERR_IN") {
+	field(DESC, "Error input value")
+	field(ZNAM, "OFF")
+    field(ONAM, "ON")
+	
+	field(INP, "$(P)BUFFER.K CP")
+}
+
+### SIMULATION RECORDS ###
 
 record(ao, "$(P)SIM:PRESS:LOW") {
     field(FLNK, "$(P)PRESS:LOW")
@@ -193,7 +302,7 @@ alias("$(P)SIM:PRESS:HIGH", "$(P)SIM:PRESS:HIGH:SP")
 alias("$(P)SIM:PRESS:HIGH", "$(P)SIM:PRESS:HIGH:SP:RBV")
 
 record(ao, "$(P)SIM:FLOWRATE") {
-	field(FLNK, "$(P)FLOW:LOW")
+	field(FLNK, "$(P)FLOWRATE")
 }
 
 alias("$(P)SIM:FLOWRATE", "$(P)SIM:FLOWRATE:SP")
