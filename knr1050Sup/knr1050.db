@@ -35,6 +35,7 @@ record(calcout, "$(P)DISABLE:CHECK") {
 	
 	field(OUT, "$(P)DISABLE PP")
 }
+
 ###########################################################
 # Remote/Local mode control
 ###########################################################
@@ -171,8 +172,6 @@ record(bo, "$(P)_RAMP:SP") {
 
 alias("$(P)_RAMP:SP", "$(P)_RAMP")
 
-
-
 ###########################################################
 # Get the device status
 ###########################################################
@@ -188,8 +187,9 @@ record(ai, "$(P)GET_STATUS") {
 	field(SCAN, "1 second")
 	
 	field(INP, "@knr1050.proto get_status($(P)BUFFER) $(PORT)")
+	
+	info(alarm, "Knr1050")
 }
-
 
 # /// For storing the parsed values of get_status
 record(calc, "$(P)BUFFER") {
@@ -276,6 +276,8 @@ record(ai, "$(P)FLOW") {
 	field(INP, "$(P)FLOW:SP CP")
 	
 	info(INTEREST, "HIGH")
+	field(SIML, "$(P)SIM")
+	field(SIOL, "$(P)SIM:FLOW")
 }
 
 record(ao, "$(P)FLOW:SP") {
@@ -286,12 +288,14 @@ record(ao, "$(P)FLOW:SP") {
 	field(DISV, "0")
 	field(SDIS, "$(P)DISABLE")
 	info(INTEREST, "HIGH")
+	field(SIML, "$(P)SIM")
+	field(SIOL, "$(P)SIM:FLOW:SP PP")
 }
 
 alias("$(P)FLOW", "$(P)FLOW:SP:RBV")
 
 ###########################################################
-# Calculate the sum of the concentration gradients
+# Concentration gradients
 ###########################################################
 
 # ///
@@ -319,6 +323,8 @@ record(ai, "$(P)CON:A") {
 	field(INP, "$(P)BUFFER.F CP")
 	
 	info(INTEREST, "HIGH")
+	field(SIML, "$(P)SIM")
+	field(SIOL, "$(P)SIM:CON:A")
 }
 
 record(ao, "$(P)CON:A:SP") {
@@ -326,6 +332,8 @@ record(ao, "$(P)CON:A:SP") {
 	field(EGU, "")
 	
 	info(INTEREST, "HIGH")
+	field(SIML, "$(P)SIM")
+	field(SIOL, "$(P)SIM:CON:A:SP PP")
 }
 
 alias("$(P)CON:A", "$(P)CON:A:SP:RBV")
@@ -335,8 +343,8 @@ record(ai, "$(P)CON:B") {
 	field(EGU, "")
 	
 	field(INP, "$(P)BUFFER.G CP")
-	
-	field(SDIS, "$(P)DISABLE")
+	field(SIML, "$(P)SIM")
+	field(SIOL, "$(P)SIM:CON:B")
 }
 
 record(ao, "$(P)CON:B:SP") {
@@ -344,6 +352,8 @@ record(ao, "$(P)CON:B:SP") {
 	field(EGU, "")
 	
 	info(INTEREST, "HIGH")
+	field(SIML, "$(P)SIM")
+	field(SIOL, "$(P)SIM:CON:B:SP PP")
 }
 
 alias("$(P)CON:B", "$(P)CON:B:SP:RBV")
@@ -353,8 +363,10 @@ record(ai, "$(P)CON:C") {
 	field(EGU, "")
 	
 	field(INP, "$(P)BUFFER.H CP")
-	
+	field(SIML, "$(P)SIM")
+	field(SIOL, "$(P)SIM:CON:C")	
 	info(INTEREST, "HIGH")
+	
 }
 
 record(ao, "$(P)CON:C:SP") {
@@ -362,6 +374,8 @@ record(ao, "$(P)CON:C:SP") {
 	field(EGU, "")
 	
 	info(INTEREST, "HIGH")
+	field(SIML, "$(P)SIM")
+	field(SIOL, "$(P)SIM:CON:C:SP PP")
 }
 
 alias("$(P)CON:C", "$(P)CON:C:SP:RBV")
@@ -373,6 +387,8 @@ record(ai, "$(P)CON:D") {
 	field(INP, "$(P)BUFFER.I CP")
 	
 	info(INTEREST, "HIGH")
+	field(SIML, "$(P)SIM")
+	field(SIOL, "$(P)SIM:CON:D")
 }
 
 record(ao, "$(P)CON:D:SP") {
@@ -380,12 +396,14 @@ record(ao, "$(P)CON:D:SP") {
 	field(EGU, "")
 	
 	info(INTEREST, "HIGH")
+	field(SIML, "$(P)SIM")
+	field(SIOL, "$(P)SIM:CON:D:SP PP")
 }
 
 alias("$(P)CON:D", "$(P)CON:D:SP:RBV")
 
 ###########################################################
-# Pressure limits and current pressure
+# PRESSURE LIMITS and current pressure
 ###########################################################
 
 # ///
@@ -473,10 +491,6 @@ record(ao, "$(P)PRESS:HIGH:SP") {
 
 alias("$(P)PRESS:HIGH", "$(P)PRESS:HIGH:SP:RBV")
 
-
-
-
-
 record(bi, "$(P)ERR_IN") {
 	field(DESC, "Error input value")
 	field(ZNAM, "OFF")
@@ -488,6 +502,46 @@ record(bi, "$(P)ERR_IN") {
 }
 
 ### SIMULATION RECORDS ###
+
+record(ao, "$(P)SIM:FLOW") {
+	field(SCAN, "Passive")
+	field(DTYP, "Soft Channel")
+}
+
+alias("$(P)SIM:FLOW", "$(P)SIM:FLOW:SP")
+alias("$(P)SIM:FLOW", "$(P)SIM:FLOW:SP:RBV")
+
+record(ao, "$(P)SIM:CON:A") {
+	field(SCAN, "Passive")
+	field(DTYP, "Soft Channel")
+}
+
+alias("$(P)SIM:CON:A", "$(P)SIM:CON:A:SP")
+alias("$(P)SIM:CON:A", "$(P)SIM:CON:A:SP:RBV")
+
+record(ao, "$(P)SIM:CON:B") {
+	field(SCAN, "Passive")
+	field(DTYP, "Soft Channel")
+}
+
+alias("$(P)SIM:CON:B", "$(P)SIM:CON:B:SP")
+alias("$(P)SIM:CON:B", "$(P)SIM:CON:B:SP:RBV")
+
+record(ao, "$(P)SIM:CON:C") {
+	field(SCAN, "Passive")
+	field(DTYP, "Soft Channel")
+}
+
+alias("$(P)SIM:CON:C", "$(P)SIM:CON:C:SP")
+alias("$(P)SIM:CON:C", "$(P)SIM:CON:C:SP:RBV")
+
+record(ao, "$(P)SIM:CON:D") {
+	field(SCAN, "Passive")
+	field(DTYP, "Soft Channel")
+}
+
+alias("$(P)SIM:CON:D", "$(P)SIM:CON:D:SP")
+alias("$(P)SIM:CON:D", "$(P)SIM:CON:D:SP:RBV")
 
 record(ai, "$(P)SIM:PRESSURE") {
 	field(FLNK, "$(P)PRESSURE")
@@ -507,10 +561,3 @@ record(ao, "$(P)SIM:PRESS:HIGH") {
 
 alias("$(P)SIM:PRESS:HIGH", "$(P)SIM:PRESS:HIGH:SP")
 alias("$(P)SIM:PRESS:HIGH", "$(P)SIM:PRESS:HIGH:SP:RBV")
-
-record(ao, "$(P)SIM:FLOW") {
-	field(FLNK, "$(P)FLOW")
-}
-
-alias("$(P)SIM:FLOW", "$(P)SIM:FLOW:SP")
-alias("$(P)SIM:FLOW", "$(P)SIM:FLOW:SP:RBV")
