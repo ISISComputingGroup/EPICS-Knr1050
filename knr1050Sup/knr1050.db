@@ -48,21 +48,26 @@ record(calcout, "$(P)DISABLE:CHECK") {
 # /// mode then remotely executed commands are accepted but the
 # /// front panel of the device is unavilable.
 # ///
-record(mbbo, "$(P)TOGGLE:REMOTE:SP") {
+record(bi, "$(P)TOGGLE:REMOTE:SP") {
 	field(DESC, "Toggle remote/local mode")
-    field(DTYP, "Raw Soft Channel")
-
-	field(OUT, "$(P)_TOGGLE:REMOTE.SELN PP")
 	
-	field(ZRVL, "1")
-	field(ONVL, "2")
-	
-	field(ZRST, "Local")
-	field(ONST, "Remote")
+	field(ZNAM, "Local")
+	field(ONAM, "Remote")
 	info(INTEREST, "HIGH")
 }
 
-record(fanout, "$(P)_TOGGLE:REMOTE") {
+# ///
+# /// For the given toggle pump set point process the desired record.
+# ///
+record(calcout, "$(P)_TOG:CALC:REMOTE") {
+	field(INPA, "$(P)TOGGLE:REMOTE:SP CP")
+	
+	field(CALC, "A+1")
+	
+	field(OUT, "$(P)_TOG:REMOTE.SELN PP")
+}
+
+record(fanout, "$(P)_TOG:REMOTE") {
 	field(SELM, "Specified")
 	
 	field(LNK1, "$(P)_LOCAL_MODE:SP PP")
@@ -114,25 +119,26 @@ record(bo, "$(P)REMOTE_MODE") {
 # /// As a result this single set point uses a fanout and link to 
 # /// ensure these commands are correctly sent.
 # ///
-record(mbbo, "$(P)TOGGLE:PUMP:SP") {
+record(bi, "$(P)TOGGLE:PUMP:SP") {
 	field(DESC, "Start or stop the ramp")
-    field(DTYP, "Raw Soft Channel")
-
-	field(OUT, "$(P)_TOGGLE:SELECT.SELN PP")
 	
-	field(ZRVL, "1")
-	field(ONVL, "2")
-	
-	field(ZRST, "Stop")
-	field(ONST, "Start")
-	
+	field(ZNAM, "Stop")
+	field(ONAM, "Start")
 	info(INTEREST, "HIGH")
 }
 
 # ///
 # /// For the given toggle pump set point process the desired record.
 # ///
-record(fanout, "$(P)_TOGGLE:SELECT") {
+record(calcout, "$(P)_TOG:CALC:PUMP") {
+	field(INPA, "$(P)TOGGLE:PUMP:SP CP")
+	
+	field(CALC, "A+1")
+	
+	field(OUT, "$(P)_TOG:PUMP.SELN PP")
+}
+
+record(fanout, "$(P)_TOG:PUMP") {
 	field(SELM, "Specified")
 	
 	field(LNK1, "$(P)_STOP_PUMP:SP PP")
