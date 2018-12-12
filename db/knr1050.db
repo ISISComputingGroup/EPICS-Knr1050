@@ -27,8 +27,9 @@ record(bi, "$(P)DISABLE") {
 }
 
 record(calcout, "$(P)DISABLE:CHECK") {
+	field(DESC, "Check remote mode/con sum is 100%")
 	field(SCAN, "Passive")
-	field(INPA, "$(P)REMOTE_MODE CP MS")
+	field(INPA, "$(P)REMOTE_MODE.VAL CP MS")
 	field(INPB, "$(P)CON:SUM CP MS")
 	
 	field(CALC, "A&&B=1?1:0")
@@ -46,7 +47,7 @@ record(calcout, "$(P)DISABLE:CHECK") {
 # /// can be remotely executed accept for switching to remote
 # /// and checking the current remote/local state. If in remote
 # /// mode then remotely executed commands are accepted but the
-# /// front panel of the device is unavilable.
+# /// front panel of the device is unavailable.
 # ///
 record(bi, "$(P)TOGGLE:REMOTE:SP") {
 	field(DESC, "Toggle remote/local mode")
@@ -56,8 +57,9 @@ record(bi, "$(P)TOGGLE:REMOTE:SP") {
 	info(INTEREST, "HIGH")
 }
 
-# Add 1 to the value of the toggle set point to map the fanout 
-# foward link index.
+# ///
+# /// For the given toggle pump set point process the desired record.
+# ///
 record(calcout, "$(P)_TOG:CALC:REMOTE") {
 	field(INPA, "$(P)TOGGLE:REMOTE:SP CP")
 	
@@ -101,8 +103,8 @@ record(bo, "$(P)REMOTE_MODE") {
 	field(DESC, "Current remote/local mode state")
 	field(SCAN, "Passive")
 	
-	field(ZNAM, "0")
-	field(ONAM, "1")
+	field(ZNAM, "Local")
+	field(ONAM, "Remote")
 
 	info(INTEREST, "HIGH")
 }
@@ -118,21 +120,6 @@ record(bo, "$(P)REMOTE_MODE") {
 # /// As a result this single set point uses a fanout and link to 
 # /// ensure these commands are correctly sent.
 # ///
-#record(mbbo, "$(P)TOGGLE:PUMP:SP") {
-#	field(DESC, "Start or stop the ramp")
- #   field(DTYP, "Raw Soft Channel")
-#
-#	field(OUT, "$(P)_TOGGLE:SELECT.SELN PP")
-#	
-#	field(ZRVL, "1")
-#	field(ONVL, "2")
-#	
-#	field(ZRST, "Stop")
-#	field(ONST, "Start")
-#	
-#	info(INTEREST, "HIGH")
-#}
-
 record(bi, "$(P)TOGGLE:PUMP:SP") {
 	field(DESC, "Start or stop the ramp")
 	
@@ -211,8 +198,8 @@ record(ai, "$(P)GET_STATUS") {
 	info(alarm, "Knr1050")
 }
 
-# /// For storing the parsed values of get_status
 record(calc, "$(P)BUFFER") {
+	field(DESC, "Parsed values of get_status")
 	field(CALC, "0")
 }
 
@@ -225,8 +212,8 @@ record(ai, "$(P)TIMESTAMP") {
 	info(INTEREST, "HIGH")
 }
 
-record(mbbi, "$(P)INST_STATE") {
-    field(DESC, "The current instrument state.")
+record(mbbi, "$(P)DEV_STATE") {
+    field(DESC, "The current device state.")
 
 	field(INP, "$(P)BUFFER.B CP")
     
@@ -267,8 +254,8 @@ record(ai, "$(P)CURR_PG_RT") {
 	info(INTEREST, "HIGH")
 }
 
-# /// Convert the flowrate from ul/min to ml/min
 record(calcout, "$(P)_FLOW:CONV") {
+	field(DESC, "Convert from ul/min to ml/min")
 	field(INPA, "$(P)BUFFER.E CP")
 	field(CALC, "A * 1000")
 	
@@ -283,8 +270,8 @@ record(ai, "$(P)FLOW:CURR") {
 	info(INTEREST, "HIGH")
 }
 
-# /// Convert the flowrate setpoint from ml/min to ul/min
 record(calc, "$(P)_FLOW:SP:CONV") {
+	field(DESC, "Convert from ml/min to ul/min")
 	field(INPA, "$(P)FLOW:SP CP")
 	field(CALC, "A / 1000")
 }
@@ -334,6 +321,18 @@ record(calc, "$(P)CON:SUM") {
 	field(INPD, "$(P)CON:D:SP CP")
 
 	field(CALC, "(A+B+C+D)=100?1:0")
+}
+
+record(calc, "$(P)CON:SUM:VAL") {
+	field(DESC, "Sum the gradients")
+	field(SCAN, "Passive")
+	
+	field(INPA, "$(P)CON:A:SP CP")
+	field(INPB, "$(P)CON:B:SP CP")
+	field(INPC, "$(P)CON:C:SP CP")
+	field(INPD, "$(P)CON:D:SP CP")
+
+	field(CALC, "A+B+C+D")
 }
 
 record(ai, "$(P)CON:A") {
@@ -470,7 +469,6 @@ record(ao, "$(P)PRESS:LOW:SP") {
 	field(FLNK, "$(P)GET_PRESS:LIM")
 	field(EGU, "kPa")
 
-	info(INTEREST, "HIGH")
 	field(DISV, "0")
 	field(SDIS, "$(P)DISABLE")
 	field(SIML, "$(P)SIM")
@@ -500,7 +498,6 @@ record(ao, "$(P)PRESS:HIGH:SP") {
 	field(FLNK, "$(P)GET_PRESS:LIM")
 	field(EGU, "kPa")
 	
-	info(INTEREST, "HIGH")
 	field(DISV, "0")
 	field(SDIS, "$(P)DISABLE")
 	field(SIML, "$(P)SIM")
