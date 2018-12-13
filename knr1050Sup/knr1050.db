@@ -29,7 +29,7 @@ record(bi, "$(P)DISABLE") {
 record(calcout, "$(P)DISABLE:CHECK") {
 	field(DESC, "Check remote mode/con sum is 100%")
 	field(SCAN, "Passive")
-	field(INPA, "$(P)REMOTE_MODE.VAL CP MS")
+	field(INPA, "$(P)REMOTE_MODE.RVAL CP MS")
 	field(INPB, "$(P)CON:SUM CP MS")
 	
 	field(CALC, "A&&B=1?1:0")
@@ -49,46 +49,24 @@ record(calcout, "$(P)DISABLE:CHECK") {
 # /// mode then remotely executed commands are accepted but the
 # /// front panel of the device is unavailable.
 # ///
-record(bi, "$(P)TOGGLE:REMOTE:SP") {
-	field(DESC, "Toggle remote/local mode")
-	
-	field(ZNAM, "Local")
-	field(ONAM, "Remote")
-	info(INTEREST, "HIGH")
-}
-
-# ///
-# /// For the given toggle pump set point process the desired record.
-# ///
-record(calcout, "$(P)_TOG:CALC:REMOTE") {
-	field(INPA, "$(P)TOGGLE:REMOTE:SP CP")
-	
-	field(CALC, "A+1")
-	
-	field(OUT, "$(P)_TOG:REMOTE.SELN PP")
-}
-
-record(fanout, "$(P)_TOG:REMOTE") {
-	field(SELM, "Specified")
-	
-	field(LNK1, "$(P)_LOCAL_MODE:SP PP")
-	field(LNK2, "$(P)_REMOTE_MODE:SP PP")
-}
-
-record(bo, "$(P)_REMOTE_MODE:SP") {
-	field(DESC, "Set the device into remote/local mode")
+record(bo, "$(P)REMOTE_MODE:SP") {
+	field(DESC, "Set the device into remote mode")
 	field(DTYP, "stream")
 	field(SCAN, "Passive")
 	
 	field(OUT, "@knr1050.proto set_remote_mode() $(PORT)")
+	field(ZNAM, "")
+	field(ONAM, "Remote")
 }
 
-record(bo, "$(P)_LOCAL_MODE:SP") {
+record(bo, "$(P)LOCAL_MODE:SP") {
 	field(DESC, "Sets the device into local mode")
 	field(DTYP, "stream")
 	field(SCAN, "Passive")
 	
 	field(OUT, "@knr1050.proto set_local_mode() $(PORT)")
+	field(ZNAM, "")
+	field(ONAM, "Local")
 }
 
 record(bi, "$(P)GET_REMOTE_MODE") {
@@ -110,49 +88,45 @@ record(bo, "$(P)REMOTE_MODE") {
 }
 
 ###########################################################
-# Toggle the pump to either begin or stop a ramp
+# Control the pump to either begin or stop a ramp
 ###########################################################
 
 # ///
-# /// The toggle pump set point will either begin a run or stop a ramp.
-# /// This involves either sending an appropriate ramp AND stop command
-# /// to the device to begin, or the appropriate stop command to end.
-# /// As a result this single set point uses a fanout and link to 
-# /// ensure these commands are correctly sent.
+# /// The pump start set point calls both a ramp command as
+# /// well as a forward linked stop mode command. The stop
+# /// mode keeps the last values rather than stopping the
+# /// pump. If the device is in local mode, or the gradients
+# /// are not correctly set, then the pump start set point is
+# /// disabled.
 # ///
-record(bi, "$(P)TOGGLE:PUMP:SP") {
-	field(DESC, "Start or stop the ramp")
-	
-	field(ZNAM, "Stop")
-	field(ONAM, "Start")
-	info(INTEREST, "HIGH")
-}
-
-# ///
-# /// For the given toggle pump set point process the desired record.
-# ///
-record(calcout, "$(P)_TOG:CALC:PUMP") {
-	field(INPA, "$(P)TOGGLE:PUMP:SP CP")
-	
-	field(CALC, "A+1")
-	
-	field(OUT, "$(P)_TOG:PUMP.SELN PP")
-}
-
-record(fanout, "$(P)_TOG:PUMP") {
-	field(SELM, "Specified")
-	
-	field(LNK1, "$(P)_STOP_PUMP:SP PP")
-	field(LNK2, "$(P)_RAMP:SP PP")
-}
-
-record(bo, "$(P)_STOP_PUMP:SP") {
-	field(DESC, "Stops the ramp")
+record(bo, "$(P)PUMP:STOP:SP") {
+	field(DESC, "Stops the pump")
 	field(DTYP, "stream")
 	field(SCAN, "Passive")
 	
 	field(OUT,  "@knr1050.proto stop_pump $(PORT)")
+	field(ZNAM, "")
+	field(ONAM, "Stop")
 }
+
+alias("$(P)PUMP:STOP:SP", "$(P)PUMP:STOP")
+
+record(bo, "$(P)PUMP:START:SP") {
+	field(DESC, "Starts the pump")
+	field(DTYP, "stream")
+    field(SCAN, "Passive")
+	
+	field(OUT, "@knr1050.proto ramp($(P),_FLOW:SP:CONV,CON:A:SP,CON:B:SP,CON:C:SP,CON:D:SP) $(PORT)")
+	field(ZNAM, "")
+	field(ONAM, "Start")
+
+	field(FLNK, "$(P)_STOP:KLV:SP PP")
+	
+	field(DISV, "0")
+	field(SDIS, "$(P)DISABLE")
+}
+
+alias("$(P)PUMP:START:SP", "$(P)PUMP:START")
 
 record(bo, "$(P)_STOP:KLV:SP") {
 	field(DESC, "Stop mode: keep last values")
@@ -163,30 +137,14 @@ record(bo, "$(P)_STOP:KLV:SP") {
 
 alias("$(P)_STOP:KLV:SP", "$(P)_STOP:KLV")
 
-record(bo, "$(P)_RAMP:SP") {
-	field(DESC, "Starts the ramp")
-	field(DTYP, "stream")
-    field(SCAN, "Passive")
-	
-	field(OUT, "@knr1050.proto ramp($(P),_FLOW:SP:CONV,CON:A:SP,CON:B:SP,CON:C:SP,CON:D:SP) $(PORT)")
-
-	field(FLNK, "$(P)_STOP:KLV:SP PP")
-	
-	field(DISV, "0")
-	field(SDIS, "$(P)DISABLE")
-	field(SIML, "$(P)SIM")
-}
-
-alias("$(P)_RAMP:SP", "$(P)_RAMP")
-
 ###########################################################
 # Get the device status
 ###########################################################
 
 # ///
-# /// The status is sent to a calc record buffer. The records
-# /// that relate to the status returns are then populated
-# /// using the buffer elements. 
+# /// The status is sent to a calculation record buffer. The 
+# /// records that relate to the status returns are then 
+# /// populated using the buffer elements. 
 # ///
 record(ai, "$(P)GET_STATUS") {
 	field(DESC, "Get the current device status")
@@ -204,7 +162,7 @@ record(calc, "$(P)BUFFER") {
 }
 
 record(ai, "$(P)TIMESTAMP") {
-	field(DESC, "Device timestamp in ms")
+	field(DESC, "Device time stamp in ms")
 	field(EGU, "ms")
 	
 	field(INP, "$(P)BUFFER.A CP")
@@ -255,7 +213,7 @@ record(ai, "$(P)CURR_PG_RT") {
 }
 
 record(calcout, "$(P)_FLOW:CONV") {
-	field(DESC, "Convert from ul/min to ml/min")
+	field(DESC, "Convert from uL/min to mL/min")
 	field(INPA, "$(P)BUFFER.E CP")
 	field(CALC, "A * 1000")
 	
@@ -271,7 +229,7 @@ record(ai, "$(P)FLOW:CURR") {
 }
 
 record(calc, "$(P)_FLOW:SP:CONV") {
-	field(DESC, "Convert from ml/min to ul/min")
+	field(DESC, "Convert from ml/min to uL/min")
 	field(INPA, "$(P)FLOW:SP CP")
 	field(CALC, "A / 1000")
 }
