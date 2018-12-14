@@ -215,7 +215,7 @@ record(ai, "$(P)CURR_PG_RT") {
 record(calcout, "$(P)_FLOW:CONV") {
 	field(DESC, "Convert from uL/min to mL/min")
 	field(INPA, "$(P)BUFFER.E CP")
-	field(CALC, "A * 1000")
+	field(CALC, "A / 1000")
 	
 	field(OUT, "$(P)FLOW:CURR PP")
 }
@@ -231,7 +231,7 @@ record(ai, "$(P)FLOW:CURR") {
 record(calc, "$(P)_FLOW:SP:CONV") {
 	field(DESC, "Convert from ml/min to uL/min")
 	field(INPA, "$(P)FLOW:SP CP")
-	field(CALC, "A / 1000")
+	field(CALC, "A * 1000")
 }
 
 record(ai, "$(P)FLOW") {
