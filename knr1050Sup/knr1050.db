@@ -142,6 +142,9 @@ record(sseq, "$(P)TIMED:SP")
 	field(LNK3, "$(P)TIME:STATUS PP")
 	field(DO3, "1")
 	
+	field(LNK4, "$(P)TIME PP")
+	field(DO4, "0")
+	
 	field(DISV, "0")
 	field(SDIS, "$(P)DISABLE")
 	info(INTEREST, "HIGH")
@@ -159,6 +162,9 @@ record(sseq, "$(P)START:SP")
 	
 	field(LNK2, "$(P)TIME:STATUS PP")
 	field(DO2, "2")
+	
+	field(LNK3, "$(P)TIME PP")
+	field(DO3, "0")
 	
 	field(DISV, "0")
 	field(SDIS, "$(P)DISABLE")
@@ -209,6 +215,18 @@ alias("$(P)_STOP:KLV:SP", "$(P)_STOP:KLV")
 # 4. TIMED RUN CONTROL
 ###########################################################
 #
+record(calc, "$(P)TIME")
+{
+    field(DESC, "Current run time in seconds")
+	field(EGU, "s")
+    field(SCAN, "1 second")
+	field(INPA, "$(P)TIME:STATUS")
+	
+	field(CALC, "A==0?0:VAL+1")
+	
+	field(FLNK, "TIME:CHECK")
+}
+
 record(mbbi, "$(P)TIME:STATUS") 
 {
     field(DESC, "Mode of time checking")
@@ -224,43 +242,11 @@ record(mbbi, "$(P)TIME:STATUS")
     info(INTEREST, "HIGH")
 }
 
-record(calc, "$(P)TIME:START") {
-    field(DESC, "Pump start time")
-    field(SCAN, "Passive")
-	
-    field(INPA, "$(P)TIME:STAMP:CONV")
-	field(CALC, "A")
-	field(ASG, "READONLY")
-}
-
 record(ai, "$(P)TIME:STAMP") {
 	field(DESC, "Device time stamp in ms")
 	field(EGU, "ms")
 	
 	field(INP, "$(P)BUFFER.A CP")
-}
-
-record(calc, "$(P)TIME:STAMP:CONV")
-{
-    field(DESC, "Converted time stamp to seconds")
-	field(EGU, "s")
-	
-	field(INPA, "$(P)TIME:STAMP CP")
-	field(CALC, "A/1000")
-	field(ASG, "READONLY")
-}
-
-record(calc, "$(P)TIME") {
-	field(DESC, "Elapsed run time in s")
-    field(SCAN, "1 second")
-	field(EGU, "s")
-	
-    field(INPA, "$(P)TIME:START")
-	field(INPB, "$(P)TIME:STAMP:CONV CP")
-	field(CALC, "B-A")
-	
-	field(FLNK, "TIME:CHECK")
-	field(ASG, "READONLY")
 }
 
 record(ao, "$(P)TIME:SP")
