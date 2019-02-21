@@ -114,7 +114,7 @@ record(sseq, "$(P)STOP:SP")
 {
 	field(DESC, "Stop pump")
 	
-	field(LNK1, "$(P)_PUMP:STOP:SP CA")
+	field(LNK1, "$(P)_PUMP:STOP CA")
 	field(DO1, "1")
     field(WAIT1, "Wait")
 	
@@ -132,7 +132,7 @@ record(sseq, "$(P)TIMED:SP")
 {
 	field(DESC, "Start timed pump for set time or volume")
 	
-	field(LNK1, "$(P)_PUMP:START:SP CA")
+	field(LNK1, "$(P)_PUMP:START CA")
 	field(DO1, "1")
     field(WAIT1, "Wait")
 	
@@ -156,7 +156,7 @@ record(sseq, "$(P)START:SP")
 {
 	field(DESC, "Start continuous pump")
 	
-	field(LNK1, "$(P)_PUMP:START:SP CA")
+	field(LNK1, "$(P)_PUMP:START CA")
 	field(DO1, "1")
     field(WAIT1, "Wait")
 	
@@ -173,7 +173,7 @@ record(sseq, "$(P)START:SP")
 
 alias("$(P)START:SP", "$(P)START")
 
-record(bo, "$(P)_PUMP:START:SP") {
+record(bo, "$(P)_PUMP:START") {
 	field(DESC, "Start ramp")
 	field(DTYP, "stream")
     field(SCAN, "Passive")
@@ -188,7 +188,7 @@ record(bo, "$(P)_PUMP:START:SP") {
 	field(SDIS, "$(P)DISABLE")
 }
 
-record(bo, "$(P)_PUMP:STOP:SP") {
+record(bo, "$(P)_PUMP:STOP") {
 	field(DESC, "Stops the pump")
 	field(DTYP, "stream")
 	field(SCAN, "Passive")
@@ -257,12 +257,12 @@ record(ao, "$(P)TIME:SP")
 	field(DRVH, "1000000")
 	
 	field(EGU, "s")
-	field(FLNK, "$(P)TIME:CALCVOL")
+	field(FLNK, "$(P)TIME:CALC:VOL")
 	info(INTEREST, "HIGH")
 }
 alias("$(P)TIME:SP", "$(P)TIME:SP:RBV")
 
-record(ao, "$(P)TIME:VOL:SP")
+record(ao, "$(P)VOL:SP")
 {
 	field(DESC, "Pump set volume in mL")
     field(DTYP, "Soft Channel")
@@ -272,10 +272,10 @@ record(ao, "$(P)TIME:VOL:SP")
 	
 	field(EGU, "mL")
 	field(PREC, "3")
-	field(FLNK, "$(P)TIME:VOL:CALCRUN")
+	field(FLNK, "$(P)VOL:CALC:RUNTIME")
 	info(INTEREST, "HIGH")
 }
-alias("$(P)TIME:VOL:SP", "$(P)TIME:VOL:SP:RBV")
+alias("$(P)VOL:SP", "$(P)VOL:SP:RBV")
 
 record(calcout, "$(P)TIME:CHECK")
 {
@@ -311,7 +311,7 @@ record(calc, "$(P)VOL:REMAINING")
 	field(DESC, "Remaining volume")
 	field(INPA, "$(P)TIME:REMAINING")
 	field(INPB, "$(P)FLOWRATE")
-	field(INPC, "$(P)TIME:VOL:SP")
+	field(INPC, "$(P)VOL:SP")
 	field(INPD, "$(P)TIME:STATUS")
 	
 	field(CALC, "D=1?((A*B)/60):0")
@@ -321,11 +321,11 @@ record(calc, "$(P)VOL:REMAINING")
 	field(ASG, "READONLY")
 }
 
-record(calcout, "$(P)TIME:VOL:CALCRUN")
+record(calcout, "$(P)VOL:CALC:RUNTIME")
 {
 	field(DESC, "Calculate runtime for volume")
     field(DTYP, "Soft Channel")
-	field(INPA, "$(P)TIME:VOL:SP")
+	field(INPA, "$(P)VOL:SP")
 	field(INPB, "$(P)FLOWRATE:SP CP")
 	
 	field(CALC, "(A/B)*60")
@@ -334,7 +334,7 @@ record(calcout, "$(P)TIME:VOL:CALCRUN")
 	field(ASG, "READONLY")
 }
 
-record(calcout, "$(P)TIME:CALCVOL")
+record(calcout, "$(P)TIME:CALC:VOL")
 {
 	field(DESC, "Calculate vol (mL) for runtime")
 	field(INPA, "$(P)TIME:SP")
@@ -342,7 +342,7 @@ record(calcout, "$(P)TIME:CALCVOL")
 	
 	field(CALC, "(A*B)/60")
 	
-	field(OUT, "$(P)TIME:VOL:SP PP")
+	field(OUT, "$(P)VOL:SP PP")
 	field(ASG, "READONLY")
 }
 
