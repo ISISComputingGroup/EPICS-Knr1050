@@ -39,22 +39,22 @@ record(bi, "$(P)DISABLE")
     field(DESC, "Disable set points and pump start")
     field(PINI, "YES")
     field(VAL, "$(DISABLE=0)")
-	
+    
     field(ZNAM, "Disabled")
-    field(ONAM, "Enabled")	
-	info(INTEREST, "HIGH")
+    field(ONAM, "Enabled")    
+    info(INTEREST, "HIGH")
 }
 
 record(calcout, "$(P)DISABLE:CHECK") 
 {
-	field(DESC, "Check remote mode & comp sum")
-	field(SCAN, "Passive")
-	field(INPA, "$(P)MODE.RVAL CP MS")
-	field(INPB, "$(P)COMP:SUM CP MS")
-	
-	field(CALC, "A&&B=1?1:0")
-	
-	field(OUT, "$(P)DISABLE PP")
+    field(DESC, "Check remote mode & comp sum")
+    field(SCAN, "Passive")
+    field(INPA, "$(P)MODE.RVAL CP MS")
+    field(INPB, "$(P)COMP:SUM CP MS")
+    
+    field(CALC, "A&&B=1?1:0")
+    
+    field(OUT, "$(P)DISABLE PP")
 }
 
 ###########################################################
@@ -69,31 +69,31 @@ record(calcout, "$(P)DISABLE:CHECK")
 #  front panel of the device is unavailable.
 #
 record(bi, "$(P)MODE:STATUS") {
-	field(DESC, "Gets the current remote state")
-	field(DTYP, "stream")
-	field(SCAN, "1 second")
-	
-	field(INP, "@knr1050.proto get_remote_mode($(P)MODE) $(PORT)")
+    field(DESC, "Gets the current remote state")
+    field(DTYP, "stream")
+    field(SCAN, "1 second")
+    
+    field(INP, "@knr1050.proto get_remote_mode($(P)MODE) $(PORT)")
 }
 
 record(bo, "$(P)MODE") {
-	field(DESC, "Current remote/local mode state")
-	field(SCAN, "Passive")
-	
-	field(ZNAM, "LOCAL")
-	field(ONAM, "REMOTE")
+    field(DESC, "Current remote/local mode state")
+    field(SCAN, "Passive")
+    
+    field(ZNAM, "LOCAL")
+    field(ONAM, "REMOTE")
 
-	info(INTEREST, "HIGH")
+    info(INTEREST, "HIGH")
 }
 
 record(bo, "$(P)MODE:SP") {
-	field(DESC, "Sets the device mode")
-	field(DTYP, "stream")
-	
-	field(OUT, "@knr1050.proto set_mode $(PORT)")
-	
-	field(ZNAM, "LOCAL")
-	field(ONAM, "REMOTE")
+    field(DESC, "Sets the device mode")
+    field(DTYP, "stream")
+    
+    field(OUT, "@knr1050.proto set_mode $(PORT)")
+    
+    field(ZNAM, "LOCAL")
+    field(ONAM, "REMOTE")
 }
 
 alias("$(P)MODE", "$(P)MODE:SP:RBV")
@@ -112,18 +112,25 @@ alias("$(P)MODE", "$(P)MODE:SP:RBV")
 #
 record(sseq, "$(P)STOP:SP")
 {
+<<<<<<< HEAD
 	field(DESC, "Stop pump")
 	
 	field(LNK1, "$(P)_PUMP:STOP CA")
 	field(DO1, "1")
+=======
+    field(DESC, "Stop pump")
+    
+    field(LNK1, "$(P)_PUMP:STOP:SP CA")
+    field(DO1, "1")
+>>>>>>> f369c32f0d37c2a842f215ebe7361a0aefabc17d
     field(WAIT1, "Wait")
-	
-	field(LNK2, "$(P)TIME:STATUS PP")
-	field(DO2, "0")
-	
-	field(DISV, "0")
-	field(SDIS, "$(P)DISABLE")
-	info(INTEREST, "HIGH")
+    
+    field(LNK2, "$(P)TIME:STATUS PP")
+    field(DO2, "0")
+    
+    field(DISV, "0")
+    field(SDIS, "$(P)DISABLE")
+    info(INTEREST, "HIGH")
 }
 
 alias("$(P)STOP:SP", "$(P)STOP")
@@ -134,20 +141,21 @@ record(sseq, "$(P)TIMED:SP")
 	
 	field(LNK1, "$(P)_PUMP:START CA")
 	field(DO1, "1")
+
     field(WAIT1, "Wait")
-	
-	field(LNK2, "$(P)TIME:START PP")
-	field(DO2, "1")
-	
-	field(LNK3, "$(P)TIME:STATUS PP")
-	field(DO3, "1")
-	
-	field(LNK4, "$(P)TIME PP")
-	field(DO4, "0")
-	
-	field(DISV, "0")
-	field(SDIS, "$(P)DISABLE")
-	info(INTEREST, "HIGH")
+    
+    field(LNK2, "$(P)TIME:START PP")
+    field(DO2, "1")
+    
+    field(LNK3, "$(P)TIME:STATUS PP")
+    field(DO3, "1")
+    
+    field(LNK4, "$(P)TIME PP")
+    field(DO4, "0")
+    
+    field(DISV, "0")
+    field(SDIS, "$(P)DISABLE")
+    info(INTEREST, "HIGH")
 }
 
 alias("$(P)TIMED:SP", "$(P)TIMED")
@@ -158,17 +166,18 @@ record(sseq, "$(P)START:SP")
 	
 	field(LNK1, "$(P)_PUMP:START CA")
 	field(DO1, "1")
+
     field(WAIT1, "Wait")
-	
-	field(LNK2, "$(P)TIME:STATUS PP")
-	field(DO2, "2")
-	
-	field(LNK3, "$(P)TIME PP")
-	field(DO3, "0")
-	
-	field(DISV, "0")
-	field(SDIS, "$(P)DISABLE")
-	info(INTEREST, "HIGH")
+    
+    field(LNK2, "$(P)TIME:STATUS PP")
+    field(DO2, "2")
+    
+    field(LNK3, "$(P)TIME PP")
+    field(DO3, "0")
+    
+    field(DISV, "0")
+    field(SDIS, "$(P)DISABLE")
+    info(INTEREST, "HIGH")
 }
 
 alias("$(P)START:SP", "$(P)START")
@@ -176,16 +185,17 @@ alias("$(P)START:SP", "$(P)START")
 record(bo, "$(P)_PUMP:START") {
 	field(DESC, "Start ramp")
 	field(DTYP, "stream")
+
     field(SCAN, "Passive")
-	
-	field(OUT, "@knr1050.proto ramp($(P),_FLOW:SP:CONV,COMP:,A:SP,B:SP,C:SP,D:SP) $(PORT)")
-	field(ZNAM, "")
-	field(ONAM, "Start")
-	
-	field(FLNK, "$(P)_STOP:KLV:SP PP")
-	
-	field(DISV, "0")
-	field(SDIS, "$(P)DISABLE")
+    
+    field(OUT, "@knr1050.proto ramp($(P),_FLOW:SP:CONV,COMP:,A:SP,B:SP,C:SP,D:SP) $(PORT)")
+    field(ZNAM, "")
+    field(ONAM, "Start")
+    
+    field(FLNK, "$(P)_STOP:KLV:SP PP")
+    
+    field(DISV, "0")
+    field(SDIS, "$(P)DISABLE")
 }
 
 record(bo, "$(P)_PUMP:STOP") {
@@ -201,12 +211,12 @@ record(bo, "$(P)_PUMP:STOP") {
 alias("$(P)_PUMP:STOP:SP", "$(P)_PUMP:STOP")
 
 record(bo, "$(P)_STOP:KLV:SP") {
-	field(DESC, "Stop mode: keep last values")
-	field(DTYP, "stream")
+    field(DESC, "Stop mode: keep last values")
+    field(DTYP, "stream")
 
-	field(OUT,  "@knr1050.proto stop_klv $(PORT)")
-	
-	field(FLNK, "$(P)TIME:START")
+    field(OUT,  "@knr1050.proto stop_klv $(PORT)")
+    
+    field(FLNK, "$(P)TIME:START")
 }
 
 alias("$(P)_STOP:KLV:SP", "$(P)_STOP:KLV")
@@ -218,13 +228,13 @@ alias("$(P)_STOP:KLV:SP", "$(P)_STOP:KLV")
 record(calc, "$(P)TIME")
 {
     field(DESC, "Current run time in seconds")
-	field(EGU, "s")
+    field(EGU, "s")
     field(SCAN, "1 second")
-	field(INPA, "$(P)TIME:STATUS")
-	
-	field(CALC, "A==0?0:VAL+1")
-	
-	field(FLNK, "TIME:CHECK")
+    field(INPA, "$(P)TIME:STATUS")
+    
+    field(CALC, "A==0?0:VAL+1")
+    
+    field(FLNK, "TIME:CHECK")
 }
 
 record(mbbi, "$(P)TIME:STATUS") 
@@ -243,15 +253,15 @@ record(mbbi, "$(P)TIME:STATUS")
 }
 
 record(ai, "$(P)TIME:STAMP") {
-	field(DESC, "Device time stamp in ms")
-	field(EGU, "ms")
-	
-	field(INP, "$(P)BUFFER.A CP")
+    field(DESC, "Device time stamp in ms")
+    field(EGU, "ms")
+    
+    field(INP, "$(P)BUFFER.A CP")
 }
 
 record(ao, "$(P)TIME:SP")
 {
-	field(DESC, "Desired pump runtime in s")
+    field(DESC, "Desired pump runtime in s")
     field(DTYP, "Soft Channel")
 	field(DRVL, "1")
 	field(DRVH, "1000000")
@@ -259,12 +269,13 @@ record(ao, "$(P)TIME:SP")
 	field(EGU, "s")
 	field(FLNK, "$(P)TIME:CALC:VOL")
 	info(INTEREST, "HIGH")
+
 }
 alias("$(P)TIME:SP", "$(P)TIME:SP:RBV")
 
 record(ao, "$(P)VOL:SP")
 {
-	field(DESC, "Pump set volume in mL")
+    field(DESC, "Pump set volume in mL")
     field(DTYP, "Soft Channel")
 	field(DRVL, "0.001")
 	field(DRVH, "1000.000")
@@ -279,31 +290,31 @@ alias("$(P)VOL:SP", "$(P)VOL:SP:RBV")
 
 record(calcout, "$(P)TIME:CHECK")
 {
-	field(DESC, "Stop pump if we have reached runtime")
+    field(DESC, "Stop pump if we have reached runtime")
     field(DTYP, "Soft Channel")
-	field(INPA, "$(P)TIME CP")
-	field(INPB, "$(P)TIME:SP CP")
-	
-	field(CALC, "A>=B?1:0")
-	
-	field(OUT, "$(P)STOP:SP PP")
-	field(OOPT, "Transition To Non-zero")
-	field(FLNK, "$(P)TIME:REMAINING")
-	field(ASG, "READONLY")
+    field(INPA, "$(P)TIME CP")
+    field(INPB, "$(P)TIME:SP CP")
+    
+    field(CALC, "A>=B?1:0")
+    
+    field(OUT, "$(P)STOP:SP PP")
+    field(OOPT, "Transition To Non-zero")
+    field(FLNK, "$(P)TIME:REMAINING")
+    field(ASG, "READONLY")
 }
 
 record(calc, "$(P)TIME:REMAINING")
 {
-	field(DESC, "Remaining pump time")
-	field(INPA, "$(P)TIME CP")
-	field(INPB, "$(P)TIME:SP CP")
-	field(INPC, "$(P)TIME:STATUS CP")
-	
-	field(CALC, "C=1?(B-A):0")
-	field(EGU, "s")
-	field(FLNK, "$(P)VOL:REMAINING")
-	info(INTEREST, "HIGH")
-	field(ASG, "READONLY")
+    field(DESC, "Remaining pump time")
+    field(INPA, "$(P)TIME CP")
+    field(INPB, "$(P)TIME:SP CP")
+    field(INPC, "$(P)TIME:STATUS CP")
+    
+    field(CALC, "C=1?(B-A):0")
+    field(EGU, "s")
+    field(FLNK, "$(P)VOL:REMAINING")
+    info(INTEREST, "HIGH")
+    field(ASG, "READONLY")
 }
 
 record(calc, "$(P)VOL:REMAINING")
@@ -323,7 +334,7 @@ record(calc, "$(P)VOL:REMAINING")
 
 record(calcout, "$(P)VOL:CALC:RUNTIME")
 {
-	field(DESC, "Calculate runtime for volume")
+    field(DESC, "Calculate runtime for volume")
     field(DTYP, "Soft Channel")
 	field(INPA, "$(P)VOL:SP")
 	field(INPB, "$(P)FLOWRATE:SP CP")
@@ -355,34 +366,34 @@ record(calcout, "$(P)TIME:CALC:VOL")
 # 
 record(ai, "$(P)STATUS:GET") 
 {
-	field(DESC, "Get the current device status")
-	field(DTYP, "stream")
-	field(SCAN, "1 second")
-	
-	field(INP, "@knr1050.proto get_status($(P)BUFFER) $(PORT)")
-	
-	info(alarm, "Knr1050")
+    field(DESC, "Get the current device status")
+    field(DTYP, "stream")
+    field(SCAN, "1 second")
+    
+    field(INP, "@knr1050.proto get_status($(P)BUFFER) $(PORT)")
+    
+    info(alarm, "Knr1050")
 }
 
 record(calc, "$(P)BUFFER") {
-	field(DESC, "Parsed values of get_status")
-	field(CALC, "0")
+    field(DESC, "Parsed values of get_status")
+    field(CALC, "0")
 }
 
 record(mbbi, "$(P)STATUS") 
 {
     field(DESC, "The current device state.")
 
-	field(INP, "$(P)BUFFER.B CP")
+    field(INP, "$(P)BUFFER.B CP")
     
     field(ZRVL, "0")
     field(ONVL, "1")
     field(TWVL, "2")
     field(THVL, "3")
     field(FRVL, "4")
-	field(FVVL, "5")
+    field(FVVL, "5")
     field(SXVL, "6")   
-	
+    
     field(ZRST, "SYS_ST_INITIALIZING")
     field(ONST, "SYS_ST_OFF")
     field(TWST, "SYS_ST_IDLE")
@@ -395,21 +406,21 @@ record(mbbi, "$(P)STATUS")
 }
 
 record(ai, "$(P)CURR_ERR") {
-	field(DESC, "Current error")
-	field(EGU, "")
-	
-	field(INP, "$(P)BUFFER.C CP")
-	
-	info(INTEREST, "HIGH")
+    field(DESC, "Current error")
+    field(EGU, "")
+    
+    field(INP, "$(P)BUFFER.C CP")
+    
+    info(INTEREST, "HIGH")
 }
 
 record(ai, "$(P)CURR_PG_RT") {
-	field(DESC, "Current program run time")
-	field(EGU, "")
-	
-	field(INP, "$(P)BUFFER.D CP")
-	
-	info(INTEREST, "HIGH")
+    field(DESC, "Current program run time")
+    field(EGU, "")
+    
+    field(INP, "$(P)BUFFER.D CP")
+    
+    info(INTEREST, "HIGH")
 }
 
 
@@ -422,38 +433,38 @@ record(ai, "$(P)CURR_PG_RT") {
 # outputs uL.
 #
 record(calcout, "$(P)_FLOW:CONV") {
-	field(DESC, "Convert from uL/min to mL/min")
-	field(INPA, "$(P)BUFFER.E CP")
-	field(CALC, "A / 1000")
-	
-	field(OUT, "$(P)FLOWRATE PP")
+    field(DESC, "Convert from uL/min to mL/min")
+    field(INPA, "$(P)BUFFER.E CP")
+    field(CALC, "A / 1000")
+    
+    field(OUT, "$(P)FLOWRATE PP")
 }
 
 record(calc, "$(P)_FLOW:SP:CONV") {
-	field(DESC, "Convert from ml/min to uL/min")
-	field(INPA, "$(P)FLOWRATE:SP CP")
-	field(CALC, "A * 1000")
+    field(DESC, "Convert from ml/min to uL/min")
+    field(INPA, "$(P)FLOWRATE:SP CP")
+    field(CALC, "A * 1000")
 }
 
 record(ai, "$(P)FLOWRATE") {
-	field(DESC, "Current flow rate")
-	field(EGU, "mL/min")
-	field(PREC, "3")
-	
-	info(INTEREST, "HIGH")
+    field(DESC, "Current flow rate")
+    field(EGU, "mL/min")
+    field(PREC, "3")
+    
+    info(INTEREST, "HIGH")
 }
 
 record(ao, "$(P)FLOWRATE:SP") {
-	field(DESC, "Desired flow rate")
-	field(EGU, "mL/min")
-	field(PREC, "3")
-	
-	field(VAL, "0.001")
-	field(DISV, "0")
-	field(SDIS, "$(P)DISABLE")
-	info(INTEREST, "HIGH")
-	field(SIML, "$(P)SIM")
-	field(SIOL, "$(P)SIM:FLOWRATE:SP PP")
+    field(DESC, "Desired flow rate")
+    field(EGU, "mL/min")
+    field(PREC, "3")
+    
+    field(VAL, "0.001")
+    field(DISV, "0")
+    field(SDIS, "$(P)DISABLE")
+    info(INTEREST, "HIGH")
+    field(SIML, "$(P)SIM")
+    field(SIOL, "$(P)SIM:FLOWRATE:SP PP")
 }
 
 alias("$(P)FLOWRATE:SP", "$(P)FLOWRATE:SP:RBV")
@@ -469,111 +480,111 @@ alias("$(P)FLOWRATE:SP", "$(P)FLOWRATE:SP:RBV")
 #  100% then the disabled check is updated (disables start pump). 
 #
 record(calc, "$(P)COMP:SUM") {
-	field(DESC, "Check the components sum to 100%")
-	field(SCAN, "Passive")
-	
-	field(INPA, "$(P)COMP:A:SP CP")
-	field(INPB, "$(P)COMP:B:SP CP")
-	field(INPC, "$(P)COMP:C:SP CP")
-	field(INPD, "$(P)COMP:D:SP CP")
+    field(DESC, "Check the components sum to 100%")
+    field(SCAN, "Passive")
+    
+    field(INPA, "$(P)COMP:A:SP CP")
+    field(INPB, "$(P)COMP:B:SP CP")
+    field(INPC, "$(P)COMP:C:SP CP")
+    field(INPD, "$(P)COMP:D:SP CP")
 
-	field(CALC, "(A+B+C+D)=100?1:0")
+    field(CALC, "(A+B+C+D)=100?1:0")
 }
 
 record(calc, "$(P)COMP:SUM:VAL") {
-	field(DESC, "Sum the components")
-	field(SCAN, "Passive")
-	
-	field(INPA, "$(P)COMP:A:SP CP")
-	field(INPB, "$(P)COMP:B:SP CP")
-	field(INPC, "$(P)COMP:C:SP CP")
-	field(INPD, "$(P)COMP:D:SP CP")
+    field(DESC, "Sum the components")
+    field(SCAN, "Passive")
+    
+    field(INPA, "$(P)COMP:A:SP CP")
+    field(INPB, "$(P)COMP:B:SP CP")
+    field(INPC, "$(P)COMP:C:SP CP")
+    field(INPD, "$(P)COMP:D:SP CP")
 
-	field(CALC, "A+B+C+D")
+    field(CALC, "A+B+C+D")
 }
 
 record(ai, "$(P)COMP:A") {
-	field(DESC, "Component A")
-	field(EGU, "")
-	
-	field(INP, "$(P)BUFFER.F CP")
-	
-	info(INTEREST, "HIGH")
-	field(SIML, "$(P)SIM")
-	field(SIOL, "$(P)SIM:COMP:A")
+    field(DESC, "Component A")
+    field(EGU, "")
+    
+    field(INP, "$(P)BUFFER.F CP")
+    
+    info(INTEREST, "HIGH")
+    field(SIML, "$(P)SIM")
+    field(SIOL, "$(P)SIM:COMP:A")
 }
 
 record(ao, "$(P)COMP:A:SP") {
-	field(DESC, "Component A set point")
-	field(EGU, "")
-	
-	field(VAL, "100")
-	info(INTEREST, "HIGH")
-	field(SIML, "$(P)SIM")
-	field(SIOL, "$(P)SIM:COMP:A:SP PP")
+    field(DESC, "Component A set point")
+    field(EGU, "")
+    
+    field(VAL, "100")
+    info(INTEREST, "HIGH")
+    field(SIML, "$(P)SIM")
+    field(SIOL, "$(P)SIM:COMP:A:SP PP")
 }
 
 alias("$(P)COMP:A:SP", "$(P)COMP:A:SP:RBV")
 
 record(ai, "$(P)COMP:B") {
-	field(DESC, "Component B")
-	field(EGU, "")
-	
-	field(INP, "$(P)BUFFER.G CP")
-	field(SIML, "$(P)SIM")
-	field(SIOL, "$(P)SIM:COMP:B")
+    field(DESC, "Component B")
+    field(EGU, "")
+    
+    field(INP, "$(P)BUFFER.G CP")
+    field(SIML, "$(P)SIM")
+    field(SIOL, "$(P)SIM:COMP:B")
 }
 
 record(ao, "$(P)COMP:B:SP") {
-	field(DESC, "Component B")
-	field(EGU, "")
-	
-	info(INTEREST, "HIGH")
-	field(SIML, "$(P)SIM")
-	field(SIOL, "$(P)SIM:COMP:B:SP PP")
+    field(DESC, "Component B")
+    field(EGU, "")
+    
+    info(INTEREST, "HIGH")
+    field(SIML, "$(P)SIM")
+    field(SIOL, "$(P)SIM:COMP:B:SP PP")
 }
 
 alias("$(P)COMP:B", "$(P)COMP:B:SP:RBV")
 
 record(ai, "$(P)COMP:C") {
-	field(DESC, "Component C")
-	field(EGU, "")
-	
-	field(INP, "$(P)BUFFER.H CP")
-	field(SIML, "$(P)SIM")
-	field(SIOL, "$(P)SIM:COMP:C")	
-	info(INTEREST, "HIGH")
+    field(DESC, "Component C")
+    field(EGU, "")
+    
+    field(INP, "$(P)BUFFER.H CP")
+    field(SIML, "$(P)SIM")
+    field(SIOL, "$(P)SIM:COMP:C")    
+    info(INTEREST, "HIGH")
 }
 
 record(ao, "$(P)COMP:C:SP") {
-	field(DESC, "Component C")
-	field(EGU, "")
-	
-	info(INTEREST, "HIGH")
-	field(SIML, "$(P)SIM")
-	field(SIOL, "$(P)SIM:COMP:C:SP PP")
+    field(DESC, "Component C")
+    field(EGU, "")
+    
+    info(INTEREST, "HIGH")
+    field(SIML, "$(P)SIM")
+    field(SIOL, "$(P)SIM:COMP:C:SP PP")
 }
 
 alias("$(P)COMP:C", "$(P)COMP:C:SP:RBV")
 
 record(ai, "$(P)COMP:D") {
-	field(DESC, "Component D")
-	field(EGU, "")
-	
-	field(INP, "$(P)BUFFER.I CP")
-	
-	info(INTEREST, "HIGH")
-	field(SIML, "$(P)SIM")
-	field(SIOL, "$(P)SIM:COMP:D")
+    field(DESC, "Component D")
+    field(EGU, "")
+    
+    field(INP, "$(P)BUFFER.I CP")
+    
+    info(INTEREST, "HIGH")
+    field(SIML, "$(P)SIM")
+    field(SIOL, "$(P)SIM:COMP:D")
 }
 
 record(ao, "$(P)COMP:D:SP") {
-	field(DESC, "Component D")
-	field(EGU, "")
-	
-	info(INTEREST, "HIGH")
-	field(SIML, "$(P)SIM")
-	field(SIOL, "$(P)SIM:COMP:D:SP PP")
+    field(DESC, "Component D")
+    field(EGU, "")
+    
+    info(INTEREST, "HIGH")
+    field(SIML, "$(P)SIM")
+    field(SIOL, "$(P)SIM:COMP:D:SP PP")
 }
 
 alias("$(P)COMP:D", "$(P)COMP:D:SP:RBV")
@@ -583,76 +594,76 @@ alias("$(P)COMP:D", "$(P)COMP:D:SP:RBV")
 ###########################################################
 #
 record(ai, "$(P)PRESSURE") {
-	field(DESC, "Current pressure in kPa")
-	
-	field(INP, "$(P)BUFFER.J CP")
-	
-	field(EGU, "kPa")
-	field(SIML, "$(P)SIM")
+    field(DESC, "Current pressure in kPa")
+    
+    field(INP, "$(P)BUFFER.J CP")
+    
+    field(EGU, "kPa")
+    field(SIML, "$(P)SIM")
     field(SIOL, "$(P)SIM:PRESSURE")
-	info(INTEREST, "HIGH")
+    info(INTEREST, "HIGH")
 }
 
 record(ai, "$(P)PRESSURE:LIMITS") {
-	field(DESC, "Gets pressure min/max limits")
-	field(DTYP, "stream")
-	field(SCAN, "1 second")
-	
-	field(INP, "@knr1050.proto get_plim($(P),PRESSURE:MIN,PRESSURE:MAX) $(PORT)")
+    field(DESC, "Gets pressure min/max limits")
+    field(DTYP, "stream")
+    field(SCAN, "1 second")
+    
+    field(INP, "@knr1050.proto get_plim($(P),PRESSURE:MIN,PRESSURE:MAX) $(PORT)")
 
-	field(EGU, "kPa")
+    field(EGU, "kPa")
 }
 
 record(ai, "$(P)PRESSURE:MIN") {
-	field(DESC, "Minimum pressure limit")
-	
-	field(EGU, "kPa")
-	field(SIML, "$(P)SIM")
+    field(DESC, "Minimum pressure limit")
+    
+    field(EGU, "kPa")
+    field(SIML, "$(P)SIM")
     field(SIOL, "$(P)SIM:PRESSURE:MIN")
-	info(INTEREST, "HIGH")
+    info(INTEREST, "HIGH")
 }
 
 record(ao, "$(P)PRESSURE:MIN:SP") {
-	field(DESC, "Sets the minimum pressure limit")
-	field(DTYP, "stream")
-	
-	field(OUT,  "@knr1050.proto set_plim_low($(P)PRESSURE:MAX) $(PORT)")
-	field(FLNK, "$(P)PRESSURE:LIMITS")
+    field(DESC, "Sets the minimum pressure limit")
+    field(DTYP, "stream")
+    
+    field(OUT,  "@knr1050.proto set_plim_low($(P)PRESSURE:MAX) $(PORT)")
+    field(FLNK, "$(P)PRESSURE:LIMITS")
 
-	field(EGU, "kPa")
-	field(VAL, "0")
-	field(DISV, "0")
-	field(SDIS, "$(P)DISABLE")
-	field(SIML, "$(P)SIM")
+    field(EGU, "kPa")
+    field(VAL, "0")
+    field(DISV, "0")
+    field(SDIS, "$(P)DISABLE")
+    field(SIML, "$(P)SIM")
     field(SIOL, "$(P)SIM:PRESSURE:MIN:SP PP")
-	info(INTEREST, "HIGH")
+    info(INTEREST, "HIGH")
 }
 
 alias("$(P)PRESSURE:MIN", "$(P)PRESSURE:MIN:SP:RBV")
 
 record(ai, "$(P)PRESSURE:MAX") {
-	field(DESC, "Minimum pressure limit")
-	
-	field(EGU, "kPa")	
-	field(SIML, "$(P)SIM")
+    field(DESC, "Minimum pressure limit")
+    
+    field(EGU, "kPa")    
+    field(SIML, "$(P)SIM")
     field(SIOL, "$(P)SIM:PRESSURE:MAX")
-	info(INTEREST, "HIGH")
+    info(INTEREST, "HIGH")
 }
 
 record(ao, "$(P)PRESSURE:MAX:SP") {
-	field(DESC, "Sets the maximum pressure limit")
-	field(DTYP, "stream")
-	
-	field(OUT,  "@knr1050.proto set_plim_high($(P)PRESSURE:MIN) $(PORT)")
-	field(FLNK, "$(P)PRESSURE:LIMITS")
+    field(DESC, "Sets the maximum pressure limit")
+    field(DTYP, "stream")
+    
+    field(OUT,  "@knr1050.proto set_plim_high($(P)PRESSURE:MIN) $(PORT)")
+    field(FLNK, "$(P)PRESSURE:LIMITS")
 
-	field(EGU, "kPa")
-	field(VAL, "100")	
-	field(DISV, "0")
-	field(SDIS, "$(P)DISABLE")
-	field(SIML, "$(P)SIM")
+    field(EGU, "kPa")
+    field(VAL, "100")    
+    field(DISV, "0")
+    field(SDIS, "$(P)DISABLE")
+    field(SIML, "$(P)SIM")
     field(SIOL, "$(P)SIM:PRESS:HIGH:SP PP")
-	info(INTEREST, "HIGH")
+    info(INTEREST, "HIGH")
 }
 
 alias("$(P)PRESSURE:MAX", "$(P)PRESSURE:MAX:SP:RBV")
@@ -662,59 +673,59 @@ alias("$(P)PRESSURE:MAX", "$(P)PRESSURE:MAX:SP:RBV")
 ###########################################################
 #
 record(bi, "$(P)ERR_IN") {
-	field(DESC, "Error input value")
-	field(ZNAM, "OFF")
+    field(DESC, "Error input value")
+    field(ZNAM, "OFF")
     field(ONAM, "ON")
-	
-	field(INP, "$(P)BUFFER.K CP")
-	
-	info(INTEREST, "HIGH")
+    
+    field(INP, "$(P)BUFFER.K CP")
+    
+    info(INTEREST, "HIGH")
 }
 
 ### SIMULATION RECORDS ###
 
 record(ao, "$(P)SIM:FLOWRATE") {
-	field(SCAN, "Passive")
-	field(DTYP, "Soft Channel")
+    field(SCAN, "Passive")
+    field(DTYP, "Soft Channel")
 }
 
 alias("$(P)SIM:FLOWRATE", "$(P)SIM:FLOWRATE:SP")
 alias("$(P)SIM:FLOWRATE:SP", "$(P)SIM:FLOWRATE:SP:RBV")
 
 record(ao, "$(P)SIM:COMP:A") {
-	field(SCAN, "Passive")
-	field(DTYP, "Soft Channel")
+    field(SCAN, "Passive")
+    field(DTYP, "Soft Channel")
 }
 
 alias("$(P)SIM:COMP:A", "$(P)SIM:COMP:A:SP")
 alias("$(P)SIM:COMP:A", "$(P)SIM:COMP:A:SP:RBV")
 
 record(ao, "$(P)SIM:COMP:B") {
-	field(SCAN, "Passive")
-	field(DTYP, "Soft Channel")
+    field(SCAN, "Passive")
+    field(DTYP, "Soft Channel")
 }
 
 alias("$(P)SIM:COMP:B", "$(P)SIM:COMP:B:SP")
 alias("$(P)SIM:COMP:B", "$(P)SIM:COMP:B:SP:RBV")
 
 record(ao, "$(P)SIM:COMP:C") {
-	field(SCAN, "Passive")
-	field(DTYP, "Soft Channel")
+    field(SCAN, "Passive")
+    field(DTYP, "Soft Channel")
 }
 
 alias("$(P)SIM:COMP:C", "$(P)SIM:COMP:C:SP")
 alias("$(P)SIM:COMP:C", "$(P)SIM:COMP:C:SP:RBV")
 
 record(ao, "$(P)SIM:COMP:D") {
-	field(SCAN, "Passive")
-	field(DTYP, "Soft Channel")
+    field(SCAN, "Passive")
+    field(DTYP, "Soft Channel")
 }
 
 alias("$(P)SIM:COMP:D", "$(P)SIM:COMP:D:SP")
 alias("$(P)SIM:COMP:D", "$(P)SIM:COMP:D:SP:RBV")
 
 record(ai, "$(P)SIM:PRESSURE") {
-	field(FLNK, "$(P)PRESSURE")
+    field(FLNK, "$(P)PRESSURE")
 }
 
 record(ai, "$(P)SIM:PRESSURE:MIN") {
