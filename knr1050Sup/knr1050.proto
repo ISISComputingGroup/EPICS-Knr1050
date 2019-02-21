@@ -42,10 +42,5 @@ get_remote_mode {
 
 set_mode {
     out "%{LOCAL|REMOTE}";
-<<<<<<< HEAD
+
 	in "OK";
-}
-=======
-    in "OK";
-}
->>>>>>> f369c32f0d37c2a842f215ebe7361a0aefabc17d
