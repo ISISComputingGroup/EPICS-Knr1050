@@ -44,3 +44,5 @@ set_mode {
     out "%{LOCAL|REMOTE}";
 
 	in "OK";
+}
+git a
