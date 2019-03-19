@@ -641,7 +641,6 @@ alias("$(P)PRESSURE:MAX", "$(P)PRESSURE:MAX:SP:RBV")
 # 9. ERROR 
 ###########################################################
 #
-
 record(stringin, "$(P)ERROR") {
     field(DESC, "Current Error")
     field(DTYP, "Soft Channel")
@@ -661,6 +660,7 @@ record(ai, "$(P)ERROR:STATUS") {
 
 record(bi, "$(P)ERROR:INPUT") {
     field(DESC, "Status error input value")
+    
     field(ZNAM, "OFF")
     field(ONAM, "ON")
     
@@ -681,30 +681,6 @@ record(stringin, "$(P)ERROR:STR") {
     field(SIOL, "$(P)SIM:ERROR:STR")
     field(SDIS, "$(P)DISABLE")
     info(INTEREST, "HIGH")
-}
-
-record(bo, "$(P)ERROR:RESET:SP") {
-    field(DESC, "Reset device errors")
-    field(DTYP, "stream")
-    
-    field(OUT, "@knr1050.proto resetError $(PORT)")
-    
-    field(ZNAM, "")
-    field(ONAM, "RESET")
-    
-    field(FLNK, "$(P)ERROR:RESET:CLEAR")
-    
-    info(INTEREST, "HIGH")
-}
-
-alias("$(P)ERROR:RESET:SP", "$(P)ERROR:RESET")
-
-record(stringout, "$(P)ERROR:RESET:CLEAR") {
-    field(DESC, "Reset the ERROR:STR value")
-    field(ASG, "READONLY")
-    field(VAL, "")
- 
-    field(OUT, "$(P)ERROR PP")
 }
 
 ### SIMULATION RECORDS ###
@@ -770,14 +746,7 @@ record(ai, "$(P)SIM:PRESSURE:MAX") {
 alias("$(P)SIM:PRESSURE:MAX", "$(P)SIM:PRESSURE:MAX:SP")
 alias("$(P)SIM:PRESSURE:MAX", "$(P)SIM:PRESSURE:MAX:SP:RBV")
 
-record(ai, "$(P)SIM:ERROR:STR") {
+record(ai, "$(P)SIM:ERROR") {
     field(SCAN, "Passive")
     field(DTYP, "Soft Channel")    
 }
-
-record(ai, "$(P)SIM:ERROR:RESET") {
-    field(SCAN, "Passive")
-    field(DTYP, "Soft Channel")    
-}
-
-alias("$(P)SIM:ERROR:RESET", "$(P)SIM:ERROR:RESET:SP")

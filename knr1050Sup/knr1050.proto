@@ -48,6 +48,7 @@ set_mode {
 
 resetError {
     out "RESET_ERROR";
+    in "OK";
 }
 
 readErrorString {
