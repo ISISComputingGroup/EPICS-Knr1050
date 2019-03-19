@@ -411,8 +411,9 @@ record(calc, "$(P)_FLOW:SP:CONV") {
     field(ASG, "READONLY")
 }
 
+# NB: This is the devices desired flow rate not the current flow rate.
 record(ai, "$(P)FLOWRATE") {
-    field(DESC, "Current flow rate")
+    field(DESC, "Device flow rate")
     field(EGU, "mL/min")
     field(PREC, "3")
     
