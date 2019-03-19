@@ -49,21 +49,15 @@ record(calcout, "$(P)DISABLE:CHECK")
 #  mode then remotely executed commands are accepted but the
 #  front panel of the device is unavailable.
 #
-record(bi, "$(P)MODE:STATUS") {
-    field(DESC, "Gets the current remote state")
+record(bi, "$(P)MODE") {
+    field(DESC, "Current remote/local mode state")
     field(DTYP, "stream")
     field(SCAN, "1 second")
     
-    field(INP, "@knr1050.proto get_remote_mode($(P)MODE) $(PORT)")
-}
-
-record(bo, "$(P)MODE") {
-    field(DESC, "Current remote/local mode state")
-    field(SCAN, "Passive")
+    field(INP, "@knr1050.proto get_mode $(PORT)")
     
     field(ZNAM, "LOCAL")
     field(ONAM, "REMOTE")
-
     info(INTEREST, "HIGH")
 }
 
@@ -113,7 +107,7 @@ record(sseq, "$(P)TIMED:SP")
 {
 	field(DESC, "Start timed pump for set time or volume")
 	
-	field(LNK1, "$(P)_PUMP:START CA")
+	field(LNK1, "$(P)_PUMP:START.PROC CA")
 	field(DO1, "1")
 
     field(WAIT1, "Wait")
@@ -138,7 +132,7 @@ record(sseq, "$(P)START:SP")
 {
 	field(DESC, "Start continuous pump")
 	
-	field(LNK1, "$(P)_PUMP:START CA")
+	field(LNK1, "$(P)_PUMP:START.PROC CA")
 	field(DO1, "1")
 
     field(WAIT1, "Wait")
@@ -164,9 +158,9 @@ record(bo, "$(P)_PUMP:START") {
     
     field(OUT, "@knr1050.proto ramp($(P),_FLOW:SP:CONV,COMP:,A:SP,B:SP,C:SP,D:SP) $(PORT)")
     field(ZNAM, "")
-    field(ONAM, "Start")
+    field(ONAM, "START")
     
-    field(FLNK, "$(P)_STOP:KLV:SP PP")
+    field(FLNK, "$(P)_STOP:KLV:SP.PROC")
     
     field(DISV, "0")
     field(SDIS, "$(P)DISABLE")
@@ -179,10 +173,10 @@ record(bo, "$(P)_PUMP:STOP") {
 	
 	field(OUT,  "@knr1050.proto stop_pump $(PORT)")
 	field(ZNAM, "")
-	field(ONAM, "Stop")
+	field(ONAM, "STOP")
 }
 
-alias("$(P)_PUMP:STOP:SP", "$(P)_PUMP:STOP")
+alias("$(P)_PUMP:STOP", "$(P)_PUMP:STOP:SP")
 
 record(bo, "$(P)_STOP:KLV:SP") {
     field(DESC, "Stop mode: keep last values")
@@ -190,7 +184,7 @@ record(bo, "$(P)_STOP:KLV:SP") {
 
     field(OUT,  "@knr1050.proto stop_klv $(PORT)")
     
-    field(FLNK, "$(P)TIME:START")
+    field(FLNK, "$(P)TIME:START.PROC")
 }
 
 alias("$(P)_STOP:KLV:SP", "$(P)_STOP:KLV")
@@ -208,7 +202,9 @@ record(calc, "$(P)TIME")
     
     field(CALC, "A==0?0:VAL+1")
     
-    field(FLNK, "TIME:CHECK")
+    field(FLNK, "TIME:CHECK.PROC")
+    
+    field(ASG, "READONLY")
 }
 
 record(mbbi, "$(P)TIME:STATUS") 
@@ -368,22 +364,13 @@ record(mbbi, "$(P)STATUS")
     field(FVVL, "5")
     field(SXVL, "6")   
     
-    field(ZRST, "SYS_ST_INITIALIZING")
-    field(ONST, "SYS_ST_OFF")
-    field(TWST, "SYS_ST_IDLE")
-    field(THST, "SYS_ST_RUN")
-    field(FRST, "SYS_ST_HOLD")
-    field(FVST, "SYS_ST_PURGE")
-    field(SXST, "SYS_ST_STANDBY")
-    
-    info(INTEREST, "HIGH")
-}
-
-record(ai, "$(P)CURR_ERR") {
-    field(DESC, "Current error")
-    field(EGU, "")
-    
-    field(INP, "$(P)BUFFER.C CP")
+    field(ZRST, "INITIALIZING")
+    field(ONST, "OFF")
+    field(TWST, "IDLE") # Active pump no running program
+    field(THST, "RUN")
+    field(FRST, "HOLD")
+    field(FVST, "PURGE")
+    field(SXST, "STANDBY")
     
     info(INTEREST, "HIGH")
 }
@@ -412,12 +399,16 @@ record(calcout, "$(P)_FLOW:CONV") {
     field(CALC, "A / 1000")
     
     field(OUT, "$(P)FLOWRATE PP")
+    
+    field(ASG, "READONLY")
 }
 
 record(calc, "$(P)_FLOW:SP:CONV") {
     field(DESC, "Convert from ml/min to uL/min")
     field(INPA, "$(P)FLOWRATE:SP CP")
     field(CALC, "A * 1000")
+    
+    field(ASG, "READONLY")
 }
 
 record(ai, "$(P)FLOWRATE") {
@@ -463,6 +454,8 @@ record(calc, "$(P)COMP:SUM") {
     field(INPD, "$(P)COMP:D:SP CP")
 
     field(CALC, "(A+B+C+D)=100?1:0")
+    
+    field(ASG, "READONLY")
 }
 
 record(calc, "$(P)COMP:SUM:VAL") {
@@ -475,6 +468,8 @@ record(calc, "$(P)COMP:SUM:VAL") {
     field(INPD, "$(P)COMP:D:SP CP")
 
     field(CALC, "A+B+C+D")
+    
+    field(ASG, "READONLY")
 }
 
 record(ai, "$(P)COMP:A") {
@@ -643,17 +638,73 @@ record(ao, "$(P)PRESSURE:MAX:SP") {
 alias("$(P)PRESSURE:MAX", "$(P)PRESSURE:MAX:SP:RBV")
 
 ###########################################################
-# Misc
+# 9. ERROR 
 ###########################################################
 #
-record(bi, "$(P)ERR_IN") {
-    field(DESC, "Error input value")
+
+record(stringin, "$(P)ERROR") {
+    field(DESC, "Current Error")
+    field(DTYP, "Soft Channel")
+    
+    field(INP, "$(P)ERROR:STR CP")
+    
+    info(INTEREST, "HIGH")
+}
+
+record(ai, "$(P)ERROR:STATUS") {
+    field(DESC, "Status current error")
+    
+    field(INP, "$(P)BUFFER.C CP")
+    
+    info(INTEREST, "HIGH")
+}
+
+record(bi, "$(P)ERROR:INPUT") {
+    field(DESC, "Status error input value")
     field(ZNAM, "OFF")
     field(ONAM, "ON")
     
     field(INP, "$(P)BUFFER.K CP")
     
     info(INTEREST, "HIGH")
+}
+
+record(stringin, "$(P)ERROR:STR") {
+    field(DESC, "Input error return")
+	field(DTYP, "stream")
+	field(SCAN, "I/O Intr")
+
+	field(INP, "@knr1050.proto readErrorString $(PORT)")
+    
+    field(FLNK, "$(P)ERROR")
+    field(SIML, "$(P)SIM")
+    field(SIOL, "$(P)SIM:ERROR:STR")
+    field(SDIS, "$(P)DISABLE")
+    info(INTEREST, "HIGH")
+}
+
+record(bo, "$(P)ERROR:RESET:SP") {
+    field(DESC, "Reset device errors")
+    field(DTYP, "stream")
+    
+    field(OUT, "@knr1050.proto resetError $(PORT)")
+    
+    field(ZNAM, "")
+    field(ONAM, "RESET")
+    
+    field(FLNK, "$(P)ERROR:RESET:CLEAR")
+    
+    info(INTEREST, "HIGH")
+}
+
+alias("$(P)ERROR:RESET:SP", "$(P)ERROR:RESET")
+
+record(stringout, "$(P)ERROR:RESET:CLEAR") {
+    field(DESC, "Reset the ERROR:STR value")
+    field(ASG, "READONLY")
+    field(VAL, "")
+ 
+    field(OUT, "$(P)ERROR PP")
 }
 
 ### SIMULATION RECORDS ###
@@ -718,3 +769,15 @@ record(ai, "$(P)SIM:PRESSURE:MAX") {
 
 alias("$(P)SIM:PRESSURE:MAX", "$(P)SIM:PRESSURE:MAX:SP")
 alias("$(P)SIM:PRESSURE:MAX", "$(P)SIM:PRESSURE:MAX:SP:RBV")
+
+record(ai, "$(P)SIM:ERROR:STR") {
+    field(SCAN, "Passive")
+    field(DTYP, "Soft Channel")    
+}
+
+record(ai, "$(P)SIM:ERROR:RESET") {
+    field(SCAN, "Passive")
+    field(DTYP, "Soft Channel")    
+}
+
+alias("$(P)SIM:ERROR:RESET", "$(P)SIM:ERROR:RESET:SP")
