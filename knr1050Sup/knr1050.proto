@@ -42,7 +42,7 @@ get_mode {
 
 set_mode {
     out "%{LOCAL|REMOTE}";
-	in "OK";
+    in "OK";
     @init{get_mode;}
 }
 
