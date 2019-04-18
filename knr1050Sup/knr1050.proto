@@ -35,13 +35,23 @@ get_status {
     in "STATUS:%(\$1.A)u,%(\$1.B)u,%(\$1.C)u,%*[^,],%(\$1.E)f,%(\$1.F)f,%(\$1.G)f,%(\$1.H)f,%(\$1.I)f,%*u,%*u,%*u,%*u,%*u,%*u,%*u,%*u,%(\$1.J)f,%(\$1.K)u,%*u";
 }
 
-get_remote_mode {
+get_mode {
     out "REMOTE?";
-    in "REMOTE:%(\$1)i"
+    in "REMOTE:%i"
 }
 
 set_mode {
     out "%{LOCAL|REMOTE}";
-
-	in "OK";
+    in "OK";
+    @init{get_mode;}
 }
+
+resetError {
+    out "RESET_ERROR";
+    in "OK";
+}
+
+readErrorString {
+    in "ERROR:%#s";
+}
+

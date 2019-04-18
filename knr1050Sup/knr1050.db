@@ -49,21 +49,15 @@ record(calcout, "$(P)DISABLE:CHECK")
 #  mode then remotely executed commands are accepted but the
 #  front panel of the device is unavailable.
 #
-record(bi, "$(P)MODE:STATUS") {
-    field(DESC, "Gets the current remote state")
+record(bi, "$(P)MODE") {
+    field(DESC, "Current remote/local mode state")
     field(DTYP, "stream")
     field(SCAN, "1 second")
     
-    field(INP, "@knr1050.proto get_remote_mode($(P)MODE) $(PORT)")
-}
-
-record(bo, "$(P)MODE") {
-    field(DESC, "Current remote/local mode state")
-    field(SCAN, "Passive")
+    field(INP, "@knr1050.proto get_mode $(PORT)")
     
     field(ZNAM, "LOCAL")
     field(ONAM, "REMOTE")
-
     info(INTEREST, "HIGH")
 }
 
@@ -93,10 +87,10 @@ alias("$(P)MODE", "$(P)MODE:SP:RBV")
 #
 record(sseq, "$(P)STOP:SP")
 {
-	field(DESC, "Stop pump")
-	
-	field(LNK1, "$(P)_PUMP:STOP CA")
-	field(DO1, "1")
+    field(DESC, "Stop pump")
+    
+    field(LNK1, "$(P)_PUMP:STOP CA")
+    field(DO1, "1")
     field(WAIT1, "Wait")
     
     field(LNK2, "$(P)TIME:STATUS PP")
@@ -111,10 +105,10 @@ alias("$(P)STOP:SP", "$(P)STOP")
 
 record(sseq, "$(P)TIMED:SP")
 {
-	field(DESC, "Start timed pump for set time or volume")
-	
-	field(LNK1, "$(P)_PUMP:START CA")
-	field(DO1, "1")
+    field(DESC, "Start timed pump for set time or volume")
+    
+    field(LNK1, "$(P)_PUMP:START.PROC CA")
+    field(DO1, "1")
 
     field(WAIT1, "Wait")
     
@@ -136,10 +130,10 @@ alias("$(P)TIMED:SP", "$(P)TIMED")
 
 record(sseq, "$(P)START:SP")
 {
-	field(DESC, "Start continuous pump")
-	
-	field(LNK1, "$(P)_PUMP:START CA")
-	field(DO1, "1")
+    field(DESC, "Start continuous pump")
+    
+    field(LNK1, "$(P)_PUMP:START.PROC CA")
+    field(DO1, "1")
 
     field(WAIT1, "Wait")
     
@@ -157,32 +151,32 @@ record(sseq, "$(P)START:SP")
 alias("$(P)START:SP", "$(P)START")
 
 record(bo, "$(P)_PUMP:START") {
-	field(DESC, "Start ramp")
-	field(DTYP, "stream")
+    field(DESC, "Start ramp")
+    field(DTYP, "stream")
 
     field(SCAN, "Passive")
     
     field(OUT, "@knr1050.proto ramp($(P),_FLOW:SP:CONV,COMP:,A:SP,B:SP,C:SP,D:SP) $(PORT)")
     field(ZNAM, "")
-    field(ONAM, "Start")
+    field(ONAM, "START")
     
-    field(FLNK, "$(P)_STOP:KLV:SP PP")
+    field(FLNK, "$(P)_STOP:KLV:SP.PROC")
     
     field(DISV, "0")
     field(SDIS, "$(P)DISABLE")
 }
 
 record(bo, "$(P)_PUMP:STOP") {
-	field(DESC, "Stops the pump")
-	field(DTYP, "stream")
-	field(SCAN, "Passive")
-	
-	field(OUT,  "@knr1050.proto stop_pump $(PORT)")
-	field(ZNAM, "")
-	field(ONAM, "Stop")
+    field(DESC, "Stops the pump")
+    field(DTYP, "stream")
+    field(SCAN, "Passive")
+    
+    field(OUT,  "@knr1050.proto stop_pump $(PORT)")
+    field(ZNAM, "")
+    field(ONAM, "STOP")
 }
 
-alias("$(P)_PUMP:STOP:SP", "$(P)_PUMP:STOP")
+alias("$(P)_PUMP:STOP", "$(P)_PUMP:STOP:SP")
 
 record(bo, "$(P)_STOP:KLV:SP") {
     field(DESC, "Stop mode: keep last values")
@@ -190,7 +184,7 @@ record(bo, "$(P)_STOP:KLV:SP") {
 
     field(OUT,  "@knr1050.proto stop_klv $(PORT)")
     
-    field(FLNK, "$(P)TIME:START")
+    field(FLNK, "$(P)TIME:START.PROC")
 }
 
 alias("$(P)_STOP:KLV:SP", "$(P)_STOP:KLV")
@@ -208,7 +202,9 @@ record(calc, "$(P)TIME")
     
     field(CALC, "A==0?0:VAL+1")
     
-    field(FLNK, "TIME:CHECK")
+    field(FLNK, "TIME:CHECK.PROC")
+    
+    field(ASG, "READONLY")
 }
 
 record(mbbi, "$(P)TIME:STATUS") 
@@ -237,12 +233,12 @@ record(ao, "$(P)TIME:SP")
 {
     field(DESC, "Desired pump runtime in s")
     field(DTYP, "Soft Channel")
-	field(DRVL, "1")
-	field(DRVH, "1000000")
-	
-	field(EGU, "s")
-	field(FLNK, "$(P)TIME:CALC:VOL")
-	info(INTEREST, "HIGH")
+    field(DRVL, "1")
+    field(DRVH, "1000000")
+    
+    field(EGU, "s")
+    field(FLNK, "$(P)TIME:CALC:VOL")
+    info(INTEREST, "HIGH")
 
 }
 alias("$(P)TIME:SP", "$(P)TIME:SP:RBV")
@@ -251,14 +247,14 @@ record(ao, "$(P)VOL:SP")
 {
     field(DESC, "Pump set volume in mL")
     field(DTYP, "Soft Channel")
-	field(DRVL, "0.001")
-	field(DRVH, "1000.000")
-	field(VAL, "0.010")
-	
-	field(EGU, "mL")
-	field(PREC, "3")
-	field(FLNK, "$(P)VOL:CALC:RUNTIME")
-	info(INTEREST, "HIGH")
+    field(DRVL, "0.001")
+    field(DRVH, "1000.000")
+    field(VAL, "0.010")
+    
+    field(EGU, "mL")
+    field(PREC, "3")
+    field(FLNK, "$(P)VOL:CALC:RUNTIME")
+    info(INTEREST, "HIGH")
 }
 alias("$(P)VOL:SP", "$(P)VOL:SP:RBV")
 
@@ -268,8 +264,9 @@ record(calcout, "$(P)TIME:CHECK")
     field(DTYP, "Soft Channel")
     field(INPA, "$(P)TIME CP")
     field(INPB, "$(P)TIME:SP CP")
+    field(INPC, "$(P)TIME:STATUS CP")
     
-    field(CALC, "A>=B?1:0")
+    field(CALC, "(A>=B)&&(C=1)?1:0")
     
     field(OUT, "$(P)STOP:SP PP")
     field(OOPT, "Transition To Non-zero")
@@ -293,42 +290,42 @@ record(calc, "$(P)TIME:REMAINING")
 
 record(calc, "$(P)VOL:REMAINING")
 {
-	field(DESC, "Remaining volume")
-	field(INPA, "$(P)TIME:REMAINING")
-	field(INPB, "$(P)FLOWRATE")
-	field(INPC, "$(P)VOL:SP")
-	field(INPD, "$(P)TIME:STATUS")
-	
-	field(CALC, "D=1?((A*B)/60):0")
-	field(EGU, "mL")
-	field(PREC, "3")
-	info(INTEREST, "HIGH")
-	field(ASG, "READONLY")
+    field(DESC, "Remaining volume")
+    field(INPA, "$(P)TIME:REMAINING")
+    field(INPB, "$(P)FLOWRATE")
+    field(INPC, "$(P)VOL:SP")
+    field(INPD, "$(P)TIME:STATUS")
+    
+    field(CALC, "D=1?((A*B)/60):0")
+    field(EGU, "mL")
+    field(PREC, "3")
+    info(INTEREST, "HIGH")
+    field(ASG, "READONLY")
 }
 
 record(calcout, "$(P)VOL:CALC:RUNTIME")
 {
     field(DESC, "Calculate runtime for volume")
     field(DTYP, "Soft Channel")
-	field(INPA, "$(P)VOL:SP")
-	field(INPB, "$(P)FLOWRATE:SP CP")
-	
-	field(CALC, "(A/B)*60")
-	
-	field(OUT, "$(P)TIME:SP PP")
-	field(ASG, "READONLY")
+    field(INPA, "$(P)VOL:SP")
+    field(INPB, "$(P)FLOWRATE:SP CP")
+    
+    field(CALC, "(A/B)*60")
+    
+    field(OUT, "$(P)TIME:SP PP")
+    field(ASG, "READONLY")
 }
 
 record(calcout, "$(P)TIME:CALC:VOL")
 {
-	field(DESC, "Calculate vol (mL) for runtime")
-	field(INPA, "$(P)TIME:SP")
-	field(INPB, "$(P)FLOWRATE:SP CP")
-	
-	field(CALC, "(A*B)/60")
-	
-	field(OUT, "$(P)VOL:SP PP")
-	field(ASG, "READONLY")
+    field(DESC, "Calculate vol (mL) for runtime")
+    field(INPA, "$(P)TIME:SP")
+    field(INPB, "$(P)FLOWRATE:SP CP")
+    
+    field(CALC, "(A*B)/60")
+    
+    field(OUT, "$(P)VOL:SP PP")
+    field(ASG, "READONLY")
 }
 
 ###########################################################
@@ -358,7 +355,7 @@ record(mbbi, "$(P)STATUS")
 {
     field(DESC, "The current device state.")
 
-    field(INP, "$(P)BUFFER.B CP")
+    field(INP, "$(P)BUFFER.B CP MS")
     
     field(ZRVL, "0")
     field(ONVL, "1")
@@ -368,22 +365,13 @@ record(mbbi, "$(P)STATUS")
     field(FVVL, "5")
     field(SXVL, "6")   
     
-    field(ZRST, "SYS_ST_INITIALIZING")
-    field(ONST, "SYS_ST_OFF")
-    field(TWST, "SYS_ST_IDLE")
-    field(THST, "SYS_ST_RUN")
-    field(FRST, "SYS_ST_HOLD")
-    field(FVST, "SYS_ST_PURGE")
-    field(SXST, "SYS_ST_STANDBY")
-    
-    info(INTEREST, "HIGH")
-}
-
-record(ai, "$(P)CURR_ERR") {
-    field(DESC, "Current error")
-    field(EGU, "")
-    
-    field(INP, "$(P)BUFFER.C CP")
+    field(ZRST, "INITIALIZING")
+    field(ONST, "OFF")
+    field(TWST, "IDLE") # Active pump no running program
+    field(THST, "RUN")
+    field(FRST, "HOLD")
+    field(FVST, "PURGE")
+    field(SXST, "STANDBY")
     
     info(INTEREST, "HIGH")
 }
@@ -408,20 +396,25 @@ record(ai, "$(P)CURR_PG_RT") {
 #
 record(calcout, "$(P)_FLOW:CONV") {
     field(DESC, "Convert from uL/min to mL/min")
-    field(INPA, "$(P)BUFFER.E CP")
+    field(INPA, "$(P)BUFFER.E CP MS")
     field(CALC, "A / 1000")
     
-    field(OUT, "$(P)FLOWRATE PP")
+    field(OUT, "$(P)FLOWRATE PP MS")
+    
+    field(ASG, "READONLY")
 }
 
 record(calc, "$(P)_FLOW:SP:CONV") {
     field(DESC, "Convert from ml/min to uL/min")
     field(INPA, "$(P)FLOWRATE:SP CP")
     field(CALC, "A * 1000")
+    
+    field(ASG, "READONLY")
 }
 
+# NB: This is the devices desired flow rate not the current flow rate.
 record(ai, "$(P)FLOWRATE") {
-    field(DESC, "Current flow rate")
+    field(DESC, "Device flow rate")
     field(EGU, "mL/min")
     field(PREC, "3")
     
@@ -463,6 +456,8 @@ record(calc, "$(P)COMP:SUM") {
     field(INPD, "$(P)COMP:D:SP CP")
 
     field(CALC, "(A+B+C+D)=100?1:0")
+    
+    field(ASG, "READONLY")
 }
 
 record(calc, "$(P)COMP:SUM:VAL") {
@@ -475,13 +470,15 @@ record(calc, "$(P)COMP:SUM:VAL") {
     field(INPD, "$(P)COMP:D:SP CP")
 
     field(CALC, "A+B+C+D")
+    
+    field(ASG, "READONLY")
 }
 
 record(ai, "$(P)COMP:A") {
     field(DESC, "Component A")
     field(EGU, "")
     
-    field(INP, "$(P)BUFFER.F CP")
+    field(INP, "$(P)BUFFER.F CP MS")
     
     info(INTEREST, "HIGH")
     field(SIML, "$(P)SIM")
@@ -504,7 +501,7 @@ record(ai, "$(P)COMP:B") {
     field(DESC, "Component B")
     field(EGU, "")
     
-    field(INP, "$(P)BUFFER.G CP")
+    field(INP, "$(P)BUFFER.G CP MS")
     field(SIML, "$(P)SIM")
     field(SIOL, "$(P)SIM:COMP:B")
 }
@@ -524,7 +521,7 @@ record(ai, "$(P)COMP:C") {
     field(DESC, "Component C")
     field(EGU, "")
     
-    field(INP, "$(P)BUFFER.H CP")
+    field(INP, "$(P)BUFFER.H CP MS")
     field(SIML, "$(P)SIM")
     field(SIOL, "$(P)SIM:COMP:C")    
     info(INTEREST, "HIGH")
@@ -545,7 +542,7 @@ record(ai, "$(P)COMP:D") {
     field(DESC, "Component D")
     field(EGU, "")
     
-    field(INP, "$(P)BUFFER.I CP")
+    field(INP, "$(P)BUFFER.I CP MS")
     
     info(INTEREST, "HIGH")
     field(SIML, "$(P)SIM")
@@ -570,7 +567,7 @@ alias("$(P)COMP:D", "$(P)COMP:D:SP:RBV")
 record(ai, "$(P)PRESSURE") {
     field(DESC, "Current pressure in kPa")
     
-    field(INP, "$(P)BUFFER.J CP")
+    field(INP, "$(P)BUFFER.J CP MS")
     
     field(EGU, "kPa")
     field(SIML, "$(P)SIM")
@@ -583,7 +580,7 @@ record(ai, "$(P)PRESSURE:LIMITS") {
     field(DTYP, "stream")
     field(SCAN, "1 second")
     
-    field(INP, "@knr1050.proto get_plim($(P),PRESSURE:MIN,PRESSURE:MAX) $(PORT)")
+    field(INP, "@knr1050.proto get_plim($(P),PRESSURE:MIN:RAW.A,PRESSURE:MAX:RAW.A) $(PORT)")
 
     field(EGU, "kPa")
 }
@@ -643,16 +640,48 @@ record(ao, "$(P)PRESSURE:MAX:SP") {
 alias("$(P)PRESSURE:MAX", "$(P)PRESSURE:MAX:SP:RBV")
 
 ###########################################################
-# Misc
+# 9. ERROR 
 ###########################################################
 #
-record(bi, "$(P)ERR_IN") {
-    field(DESC, "Error input value")
+record(stringin, "$(P)ERROR") {
+    field(DESC, "Current Error")
+    field(DTYP, "Soft Channel")
+    
+    field(INP, "$(P)ERROR:STR CP")
+    
+    info(INTEREST, "HIGH")
+}
+
+record(ai, "$(P)ERROR:STATUS") {
+    field(DESC, "Status current error")
+    
+    field(INP, "$(P)BUFFER.C CP MS")
+    
+    info(INTEREST, "HIGH")
+}
+
+record(bi, "$(P)ERROR:INPUT") {
+    field(DESC, "Status error input value")
+    
     field(ZNAM, "OFF")
     field(ONAM, "ON")
     
-    field(INP, "$(P)BUFFER.K CP")
+    field(INP, "$(P)BUFFER.K CP MS")
     
+    info(INTEREST, "HIGH")
+}
+
+record(stringin, "$(P)ERROR:STR") {
+    field(DESC, "Input error return")
+    field(DTYP, "stream")
+    field(SCAN, "I/O Intr")
+
+    field(INP, "@knr1050.proto readErrorString $(PORT)")
+    
+    field(FLNK, "$(P)ERROR")
+    field(SIML, "$(P)SIM")
+    field(SIOL, "$(P)SIM:ERROR:STR")
+    field(SDIS, "$(P)DISABLE")
     info(INTEREST, "HIGH")
 }
 
@@ -718,3 +747,8 @@ record(ai, "$(P)SIM:PRESSURE:MAX") {
 
 alias("$(P)SIM:PRESSURE:MAX", "$(P)SIM:PRESSURE:MAX:SP")
 alias("$(P)SIM:PRESSURE:MAX", "$(P)SIM:PRESSURE:MAX:SP:RBV")
+
+record(ai, "$(P)SIM:ERROR") {
+    field(SCAN, "Passive")
+    field(DTYP, "Soft Channel")    
+}
